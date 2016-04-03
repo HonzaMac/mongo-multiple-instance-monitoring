@@ -1,0 +1,16 @@
+{
+    "name": "honzamac/mongo-multiple-instance-monitoring",
+    "description": "Tool for live monitoring of multiple mongodb instances",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Honza Machala",
+            "email": "honza.machala@seznam.cz"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "icicleio/icicle": "^0.9"
+    }
+}
