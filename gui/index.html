@@ -38,7 +38,7 @@
                 ws.onmessage = function (evt) {
                     var received_msg = evt.data;
                     console.log("Message is received...");
-                    document.getElementById('events').innerHTML += received_msg;
+                    document.getElementById('events').innerHTML += received_msg + "<br>";
                 };
 
                 ws.onerror = function (evt) {
