@@ -12,7 +12,7 @@ class ApplicationRequestHandler implements RequestHandler
 
     public function __construct($instanceList, &$stream)
     {
-        $this->application = new MongoApplication($instanceList, $stream);
+        $this->application = new MongoApplication($instanceList);
     }
 
     public function onRequest(Request $request, Socket\Socket $socket)

@@ -32,21 +32,10 @@ class MongoApplication implements Application
      * @var array
      */
     private $ipList;
-    /**
-     * @var MemoryStream[]
-     */
-    private $initStreamList;
-    /**
-     * @var DuplexStream
-     */
-    private $stream;
 
-    public function __construct($ipList, &$stream)
+    public function __construct($ipList)
     {
         $this->ipList = $ipList;
-//        $this->initStreamList = $initStreamList;
-
-        $this->stream = $stream;
     }
 
     /**
@@ -85,18 +74,6 @@ class MongoApplication implements Application
                 $this->instanceList[$id]['client'] = $mongoClient;
                 $this->instanceList[$id]['databases'] = $databases;
                 yield ($connection->send($initResponse->toJson() . PHP_EOL));
-
-//                foreach ($databases as $db) {
-//                    $dbname = $db['name'];
-//                    $checkSum[$dbname] = null;
-//                    $stats = \MongoMonitoring\command($mongoClient->selectDB($dbname), 'db.stats()');
-//                    if (md5(serialize($stats)) !== $checkSum[$dbname]) {
-//                        $output = sprintf("DB %s, coll: %s with size %d on storage %d" . PHP_EOL, $stats['db'], $stats['collections'], $stats['dataSize'], $stats['storageSize']);
-//                        $checkSum[$dbname] = md5(serialize($stats));
-//                        yield ($connection->send($output . PHP_EOL));
-//                    }
-//
-//                }
             };
             yield new Coroutine($generator($connection, $instanceIp));
         }
