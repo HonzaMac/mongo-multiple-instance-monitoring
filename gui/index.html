@@ -7,10 +7,12 @@
         var urlParams;
         (window.onpopstate = function () {
             var match,
-                    pl     = /\+/g,  // Regex for replacing addition symbol with a space
+                    pl = /\+/g,  // Regex for replacing addition symbol with a space
                     search = /([^&=]+)=?([^&]*)/g,
-                    decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-                    query  = window.location.search.substring(1);
+                    decode = function (s) {
+                        return decodeURIComponent(s.replace(pl, " "));
+                    },
+                    query = window.location.search.substring(1);
 
             urlParams = {
                 host: 'localhost',
@@ -26,7 +28,7 @@
                 console.log("WebSocket is supported by your Browser");
 
                 // Let us open a web socket
-                var url = "ws://" + host + ":" + port +"/echo";
+                var url = "ws://" + host + ":" + port + "/echo";
                 var ws = new WebSocket(url);
 
                 ws.onopen = function () {
@@ -36,9 +38,24 @@
                 };
 
                 ws.onmessage = function (evt) {
-                    var received_msg = evt.data;
-                    console.log("Message is received...");
-                    document.getElementById('events').innerHTML += received_msg + "<br>";
+                    var received_msg = JSON.parse(evt.data);
+                    var servers = document.getElementById('servers');
+                    console.log(received_msg);
+                    switch (received_msg.type) {
+                        case 'init':
+                            var newDiv = document.createElement('div');
+                            newDiv.id = received_msg.id;
+                            var newContent = document.createTextNode("Waiting for any message about this server")
+                            newDiv.appendChild(newContent);
+                            servers.appendChild(newDiv);
+                            break;
+                        case 'size':
+                            var doc = document.getElementById(received_msg.id);
+                            doc.innerHTML = JSON.stringify(received_msg) + "<br>";
+                            break;
+                    }
+
+
                 };
 
                 ws.onerror = function (evt) {
@@ -68,7 +85,7 @@
 <body>
 
 <div id="errors"></div>
-
+<div id="servers"></div>
 <div id="events"></div>
 </body>
 </html>
