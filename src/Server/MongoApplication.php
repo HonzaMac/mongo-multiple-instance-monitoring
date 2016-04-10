@@ -23,6 +23,7 @@ use MongoMonitoring\Server\Messages\Size;
 
 class MongoApplication implements Application
 {
+    const DELAY = 0.1; // 100ms
 
     /** @var array */
     private $instanceList;
@@ -99,24 +100,30 @@ class MongoApplication implements Application
             };
             yield new Coroutine($generator($connection, $instanceIp));
         }
-        echo 'DATABASE INIT is DONE' . PHP_EOL;
-        foreach ($this->instanceList as $dbId => $instance) {
-            $mongoClient = $instance['client'];
-            foreach ($instance['databases'] as $db) {
-                $gen = function (Connection $connection, MongoClient $mongoClient, $dbId, $db) {
-                    try {
-                        $stats = \MongoMonitoring\command($mongoClient->selectDB($db['name']), 'db.stats()');
-                        $sizeMessage = Size::create($dbId, $stats['dataSize']);
-//                    $output = sprintf("DB %s, coll: %s with size %d on storage %d" . PHP_EOL, $stats['db'], $stats['collections'], $stats['dataSize'], $stats['storageSize']);
-                        yield ($connection->send($sizeMessage->toJson() . PHP_EOL));
-                    } catch (Exception $e) {
-                        $errorMessage = Error::create($dbId, $e->getMessage(), $e->getCode());
-                        yield ($connection->send($errorMessage->toJson() . PHP_EOL));
-                    }
-                };
-//                yield Loop\periodic(1, $gen($connection, $mongoClient, $dbId, $db));
-                yield new Coroutine($gen($connection, $mongoClient, $dbId, $db));
-//                yield $connection->send($sizeMessage->toJson());
+        $checkSum = [];
+        while ($connection->isOpen()) {
+            foreach ($this->instanceList as $dbId => $instance) {
+                $mongoClient = $instance['client'];
+                foreach ($instance['databases'] as $dbKey => $db) {
+                    $gen = function (Connection $connection, MongoClient $mongoClient, $dbId, $db, &$checkSum) {
+                        try {
+                            $stats = \MongoMonitoring\command($mongoClient->selectDB($db['name']), 'db.stats()');
+                            $key = $dbId . $db['name'];
+                            $sum = md5(serialize($stats));
+                            if ($sum !== @$checkSum[$key]) {
+                                $checkSum[$key] = $sum;
+                                $sizeMessage = Size::create($dbId, $stats['dataSize'], $stats['storageSize']);
+                                $output = sprintf("DB %s, coll: %s with size %d on storage %d" . PHP_EOL, $stats['db'], $stats['collections'], $stats['dataSize'], $stats['storageSize']);
+                                yield ($connection->send($sizeMessage->toJson() . PHP_EOL));
+                            }
+                        } catch (Exception $e) {
+                            $errorMessage = Error::create($dbId, $e->getMessage(), $e->getCode());
+                            yield ($connection->send($errorMessage->toJson() . PHP_EOL));
+                            // todo: better error handling
+                        }
+                    };
+                    yield (new Coroutine($gen($connection, $mongoClient, $dbId, $db, $checkSum)))->delay(self::DELAY);
+                }
             }
         }
 
