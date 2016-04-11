@@ -45,13 +45,16 @@
                         case 'init':
                             var newDiv = document.createElement('div');
                             newDiv.id = received_msg.id;
+                            newDiv.className = 'box';
                             var newContent = document.createTextNode("Waiting for any message about this server")
                             newDiv.appendChild(newContent);
                             servers.appendChild(newDiv);
                             break;
                         case 'size':
                             var doc = document.getElementById(received_msg.id);
-                            doc.innerHTML = JSON.stringify(received_msg) + "<br>";
+                                if (doc) {
+                                    doc.innerHTML += received_msg.dbname + ': ' + received_msg.size + "<br>";
+                                }
                             break;
                     }
 
@@ -81,6 +84,17 @@
     <script>
         WebSocketTest(urlParams['host'], urlParams['port']);
     </script>
+    <style>
+        .box {
+            display: block;
+            width: 350px;
+            border: 1px solid indianred;
+            float: left;
+            margin: 1em;
+            padding: 0.5em;
+
+        }
+    </style>
 </head>
 <body>
 
