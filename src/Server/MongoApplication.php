@@ -89,7 +89,7 @@ class MongoApplication implements Application
                             $sum = md5(serialize($stats));
                             if ($sum !== @$checkSum[$key]) {
                                 $checkSum[$key] = $sum;
-                                $sizeMessage = Size::create($dbId, $stats['dataSize'], $stats['storageSize']);
+                                $sizeMessage = Size::create($dbId, $db['name'], $stats['dataSize'], $stats['storageSize']);
                                 $output = sprintf("DB %s, coll: %s with size %d on storage %d" . PHP_EOL, $stats['db'], $stats['collections'], $stats['dataSize'], $stats['storageSize']);
                                 yield ($connection->send($sizeMessage->toJson() . PHP_EOL));
                             }

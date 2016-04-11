@@ -4,6 +4,7 @@ namespace MongoMonitoring\Server\Messages;
 
 /**
  * @property string id
+ * @property string dbname
  * @property string type
  * @property int size
  * @property int storageSize
@@ -11,10 +12,11 @@ namespace MongoMonitoring\Server\Messages;
 class Size
 {
 
-    public static function create($id, $actualSize, $storageSize)
+    public static function create($id, $dbname, $actualSize, $storageSize)
     {
         $sizeMessage = (new self);
         $sizeMessage->id = $id;
+        $sizeMessage->dbname = $dbname;
         $sizeMessage->type = 'size';
         $sizeMessage->size = $actualSize;
         $sizeMessage->storageSize = $storageSize;
