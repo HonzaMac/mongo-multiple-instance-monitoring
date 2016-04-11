@@ -12,7 +12,10 @@
     "autoload": {
         "psr-4": {
             "MongoMonitoring\\": "src/"
-        }
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "minimum-stability": "stable",
     "require": {
