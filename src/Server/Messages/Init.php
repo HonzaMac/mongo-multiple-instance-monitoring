@@ -18,7 +18,7 @@ class Init implements IResponse
     public static function create($inistanceIp, $listDbs)
     {
         $init = (new self);
-        $init->hostId = Uuid::uuid4()->toString();
+        $init->hostId = md5($inistanceIp);
         $init->type = 'init';
         $init->url = $inistanceIp;
         $init->totalSize = $listDbs['totalSize'];
