@@ -33,8 +33,6 @@
 
                 ws.onopen = function () {
                     // Web Socket is connected, send data using send()
-//                    ws.send("Message to send");
-//                    console.log("Message is sent...");
                 };
 
                 ws.onmessage = function (evt) {
@@ -43,7 +41,12 @@
                     console.log(received_msg);
                     switch (received_msg.type) {
                         case 'init':
-                            var newDiv = document.createElement('div');
+                            var existingBox = document.getElementById(received_msg.hostId);
+                            if (existingBox) {
+                                newDiv = existingBox;
+                            } else {
+                                var newDiv = document.createElement('div');
+                            }
                             newDiv.id = received_msg.hostId;
                             newDiv.className = 'box';
                             var newContent = document.createTextNode("Waiting for any message about this server")
@@ -52,9 +55,9 @@
                             break;
                         case 'size':
                             var hostBox = document.getElementById(received_msg.hostId);
-                                if (hostBox) {
-                                    hostBox.innerHTML += received_msg.dbname + ': ' + received_msg.size + "<br>";
-                                }
+                            if (hostBox) {
+                                hostBox.innerHTML += received_msg.dbname + ': ' + received_msg.size + "<br>";
+                            }
                             break;
                         case 'error':
                             var hostBox = document.getElementById(received_msg.hostId);
@@ -75,8 +78,8 @@
                 ws.onclose = function (evt) {
                     console.log(evt);
                     // websocket is closed.
-                    document.getElementById('errors').innerHTML = "Connection to <strong>" + url + "</strong> is closed.";
-//                    setTimeout(WebSocketTest(host, port), 5000);
+                    document.getElementById('errors').innerHTML = "Connection to <strong>" + url + "</strong> is closed."
+                            + "<br>" + "<a href=\"javascript:WebSocketTest('" + host + "', '" + port + "')\">Click to reconnect</a>";
                 };
             }
 
@@ -98,7 +101,6 @@
             float: left;
             margin: 1em;
             padding: 0.5em;
-
         }
     </style>
 </head>
