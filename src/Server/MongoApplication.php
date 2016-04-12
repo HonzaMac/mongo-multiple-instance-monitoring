@@ -17,11 +17,13 @@ use MongoClient;
 use MongoDB;
 use MongoMonitoring\Server\Messages\Error;
 use MongoMonitoring\Server\Messages\Init;
+use MongoMonitoring\Server\Messages\Server;
 use MongoMonitoring\Server\Messages\Size;
 
 class MongoApplication implements Application
 {
     const DELAY = 0.01; // 100ms
+    const DELAY_SERVER_STATUS = 0.5; // 100ms
 
     /** @var array */
     private $instanceList;
@@ -64,10 +66,13 @@ class MongoApplication implements Application
         foreach ($this->ipList as $instanceIp) {
             yield new Coroutine($this->fetchInit($connection, $instanceIp));
         }
-        $checkSum = [];
+        $checkSum = $checkSumServerStatus = [];
         while ($connection->isOpen()) {
+
+
             foreach ($this->instanceList as $dbId => $instance) {
                 foreach ($instance['databases'] as $dbKey => $db) {
+                    yield (new Coroutine($this->fetchServerStats($connection, $instance['client'], $dbId, $db, $checkSumServerStatus)))->delay(self::DELAY_SERVER_STATUS);
                     yield (new Coroutine($this->fetchStats($connection, $instance['client'], $dbId, $db, $checkSum)))->delay(self::DELAY);
                 }
             }
@@ -118,6 +123,31 @@ class MongoApplication implements Application
         $this->instanceList[$id]['client'] = $mongoClient;
         $this->instanceList[$id]['databases'] = $databases;
         yield ($connection->send($initResponse->toJson() . PHP_EOL));
+    }
+
+    /**
+     * @param Connection $connection
+     * @param MongoClient $client
+     * @param string $dbId
+     * @param $db
+     * @param array $checkSum
+     */
+    private function fetchServerStats(Connection $connection, MongoClient $client, $dbId, $db, $checkSum)
+    {
+        try {
+            $serverStatus = command($client->selectDB($db['name']), 'db.serverStatus()');
+            $key = $dbId . $db['name'];
+            $sum = md5(serialize($serverStatus));
+            if ($sum !== @$checkSum[$key]) {
+                $checkSum[$key] = $sum;
+                $serverMessage = Server::create($dbId, $db['name'], $serverStatus);
+                yield ($connection->send($serverMessage->toJson() . PHP_EOL));
+            }
+
+        } catch (Exception $e) {
+            $errorMessage = Error::create($dbId, $e->getMessage(), $e->getCode());
+            yield ($connection->send($errorMessage->toJson() . PHP_EOL));
+        }
     }
 
 }

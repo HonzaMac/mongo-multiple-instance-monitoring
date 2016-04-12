@@ -15,4 +15,3 @@ function command(MongoDB $mongoDb, $mongoCode)
         throw new Exception($result['errmsg']);
     }
 }
-

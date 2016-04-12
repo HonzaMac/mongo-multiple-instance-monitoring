@@ -1,6 +1,4 @@
-#!/usr/bin/env php
 <?php
-
 namespace MongoMonitoring;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
