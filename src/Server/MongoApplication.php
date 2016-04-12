@@ -10,8 +10,6 @@ use Icicle\Http\Message\Request;
 use Icicle\Http\Message\Response;
 use Icicle\Loop;
 use Icicle\Socket\Socket;
-use Icicle\Stream\DuplexStream;
-use Icicle\Stream\MemoryStream;
 use Icicle\WebSocket\Application;
 use Icicle\WebSocket\Close;
 use Icicle\WebSocket\Connection;
@@ -23,7 +21,7 @@ use MongoMonitoring\Server\Messages\Size;
 
 class MongoApplication implements Application
 {
-    const DELAY = 0.1; // 100ms
+    const DELAY = 0.01; // 100ms
 
     /** @var array */
     private $instanceList;
@@ -64,42 +62,13 @@ class MongoApplication implements Application
     public function onConnection(Connection $connection, Response $response, Request $request)
     {
         foreach ($this->ipList as $instanceIp) {
-            $generator = function (Connection $connection, $instanceIp) {
-                $mongoClient = new MongoClient($instanceIp);
-                $mongoClient->connect();
-                $listDbs = $mongoClient->listDBs();
-                $databases = $listDbs['databases'];
-                $initResponse = Init::create($instanceIp, $listDbs);
-                $id = $initResponse->getId();
-                $this->instanceList[$id]['client'] = $mongoClient;
-                $this->instanceList[$id]['databases'] = $databases;
-                yield ($connection->send($initResponse->toJson() . PHP_EOL));
-            };
-            yield new Coroutine($generator($connection, $instanceIp));
+            yield new Coroutine($this->fetchInit($connection, $instanceIp));
         }
         $checkSum = [];
         while ($connection->isOpen()) {
             foreach ($this->instanceList as $dbId => $instance) {
-                $mongoClient = $instance['client'];
                 foreach ($instance['databases'] as $dbKey => $db) {
-                    $gen = function (Connection $connection, MongoClient $mongoClient, $dbId, $db, &$checkSum) {
-                        try {
-                            $stats = \MongoMonitoring\command($mongoClient->selectDB($db['name']), 'db.stats()');
-                            $key = $dbId . $db['name'];
-                            $sum = md5(serialize($stats));
-                            if ($sum !== @$checkSum[$key]) {
-                                $checkSum[$key] = $sum;
-                                $sizeMessage = Size::create($dbId, $db['name'], $stats['dataSize'], $stats['storageSize']);
-                                $output = sprintf("DB %s, coll: %s with size %d on storage %d" . PHP_EOL, $stats['db'], $stats['collections'], $stats['dataSize'], $stats['storageSize']);
-                                yield ($connection->send($sizeMessage->toJson() . PHP_EOL));
-                            }
-                        } catch (Exception $e) {
-                            $errorMessage = Error::create($dbId, $e->getMessage(), $e->getCode());
-                            yield ($connection->send($errorMessage->toJson() . PHP_EOL));
-                            // todo: better error handling
-                        }
-                    };
-                    yield (new Coroutine($gen($connection, $mongoClient, $dbId, $db, $checkSum)))->delay(self::DELAY);
+                    yield (new Coroutine($this->fetchStats($connection, $instance['client'], $dbId, $db, $checkSum)))->delay(self::DELAY);
                 }
             }
         }
@@ -108,19 +77,47 @@ class MongoApplication implements Application
     }
 
     /**
-     * @param MongoDB $mongoDb
-     * @param string|\MongoCode $mongoCode
-     * @return
-     * @throws Exception
+     * @param Connection $connection
+     * @param MongoClient $mongoClient
+     * @param $dbId
+     * @param $db
+     * @param $checkSum
+     * @return Generator
      */
-    static public function command(MongoDB $mongoDb, $mongoCode)
+    protected function fetchStats(Connection $connection, MongoClient $mongoClient, $dbId, $db, &$checkSum)
     {
-        $result = $mongoDb->execute($mongoCode);
-        if ($result['ok']) {
-            return $result['retval'];
-        } else {
-            throw new Exception($result['errmsg']);
+        try {
+            $stats = command($mongoClient->selectDB($db['name']), 'db.stats()');
+            $key = $dbId . $db['name'];
+            $sum = md5(serialize($stats));
+            if ($sum !== @$checkSum[$key]) {
+                $checkSum[$key] = $sum;
+                $sizeMessage = Size::create($dbId, $db['name'], $stats['dataSize'], $stats['storageSize']);
+                $output = sprintf("DB %s, coll: %s with size %d on storage %d" . PHP_EOL, $stats['db'], $stats['collections'], $stats['dataSize'], $stats['storageSize']);
+                yield ($connection->send($sizeMessage->toJson() . PHP_EOL));
+            }
+        } catch (Exception $e) {
+            $errorMessage = Error::create($dbId, $e->getMessage(), $e->getCode());
+            yield ($connection->send($errorMessage->toJson() . PHP_EOL));
         }
+    }
+
+    /**
+     * @param Connection $connection
+     * @param string $instanceIp
+     * @return Generator
+     */
+    public function fetchInit(Connection $connection, $instanceIp)
+    {
+        $mongoClient = new MongoClient($instanceIp);
+        $mongoClient->connect();
+        $listDbs = $mongoClient->listDBs();
+        $databases = $listDbs['databases'];
+        $initResponse = Init::create($instanceIp, $listDbs);
+        $id = $initResponse->getHostId();
+        $this->instanceList[$id]['client'] = $mongoClient;
+        $this->instanceList[$id]['databases'] = $databases;
+        yield ($connection->send($initResponse->toJson() . PHP_EOL));
     }
 
 }

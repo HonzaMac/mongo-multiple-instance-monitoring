@@ -3,19 +3,19 @@
 namespace MongoMonitoring\Server\Messages;
 
 /**
- * @property string id
+ * @property string $hostId
  * @property string dbname
  * @property string type
  * @property int size
  * @property int storageSize
  */
-class Size
+class Size implements IResponse
 {
 
-    public static function create($id, $dbname, $actualSize, $storageSize)
+    public static function create($hostId, $dbname, $actualSize, $storageSize)
     {
         $sizeMessage = (new self);
-        $sizeMessage->id = $id;
+        $sizeMessage->hostId = $hostId;
         $sizeMessage->dbname = $dbname;
         $sizeMessage->type = 'size';
         $sizeMessage->size = $actualSize;
@@ -23,9 +23,9 @@ class Size
         return $sizeMessage;
     }
 
-    public function getId()
+    public function getHostId()
     {
-        return $this->id;
+        return $this->hostId;
     }
 
     public function toJson()

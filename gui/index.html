@@ -44,17 +44,23 @@
                     switch (received_msg.type) {
                         case 'init':
                             var newDiv = document.createElement('div');
-                            newDiv.id = received_msg.id;
+                            newDiv.id = received_msg.hostId;
                             newDiv.className = 'box';
                             var newContent = document.createTextNode("Waiting for any message about this server")
                             newDiv.appendChild(newContent);
                             servers.appendChild(newDiv);
                             break;
                         case 'size':
-                            var doc = document.getElementById(received_msg.id);
-                                if (doc) {
-                                    doc.innerHTML += received_msg.dbname + ': ' + received_msg.size + "<br>";
+                            var hostBox = document.getElementById(received_msg.hostId);
+                                if (hostBox) {
+                                    hostBox.innerHTML += received_msg.dbname + ': ' + received_msg.size + "<br>";
                                 }
+                            break;
+                        case 'error':
+                            var hostBox = document.getElementById(received_msg.hostId);
+                            if (hostBox) {
+                                hostBox.innerHTML = "An error occured: " + received_msg.code + ": " + received_msg.message + "<br>";
+                            }
                             break;
                     }
 
