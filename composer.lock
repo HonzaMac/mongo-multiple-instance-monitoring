@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "80abd7afcab4e64de7f8997046e8941c",
-    "content-hash": "2db49a1ad59b3eec175cccc6b37ade53",
+    "hash": "166683250ecf36d5b14d60e02ea80210",
+    "content-hash": "f1884012ca82a023abf1e8e6bbd2bddc",
     "packages": [
         {
             "name": "daverandom/libdns",
-            "version": "v1.0.1",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DaveRandom/LibDNS.git",
-                "reference": "e935e8caa5ff30122bcbeb8b4ce567fa14cdf063"
+                "reference": "67de5497e84d179dffc089c5eb6a1945eb4e9460"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DaveRandom/LibDNS/zipball/e935e8caa5ff30122bcbeb8b4ce567fa14cdf063",
-                "reference": "e935e8caa5ff30122bcbeb8b4ce567fa14cdf063",
+                "url": "https://api.github.com/repos/DaveRandom/LibDNS/zipball/67de5497e84d179dffc089c5eb6a1945eb4e9460",
+                "reference": "67de5497e84d179dffc089c5eb6a1945eb4e9460",
                 "shasum": ""
             },
             "require": {
@@ -38,7 +38,53 @@
             "keywords": [
                 "dns"
             ],
-            "time": "2015-04-02 15:42:15"
+            "time": "2016-04-29 20:47:45"
+        },
+        {
+            "name": "evenement/evenement",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/igorw/evenement.git",
+                "reference": "f6e843799fd4f4184d54d8fc7b5b3551c9fa803e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/igorw/evenement/zipball/f6e843799fd4f4184d54d8fc7b5b3551c9fa803e",
+                "reference": "f6e843799fd4f4184d54d8fc7b5b3551c9fa803e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Evenement": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Igor Wiedler",
+                    "email": "igor@wiedler.ch",
+                    "homepage": "http://wiedler.ch/igor/"
+                }
+            ],
+            "description": "Événement is a very simple event dispatching library for PHP",
+            "keywords": [
+                "event-dispatcher",
+                "event-emitter"
+            ],
+            "time": "2012-11-02 14:49:47"
         },
         {
             "name": "icicleio/dns",
@@ -264,6 +310,58 @@
             "time": "2016-02-12 16:04:54"
         },
         {
+            "name": "icicleio/react-adapter",
+            "version": "v0.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/icicleio/react-adapter.git",
+                "reference": "3d1e727a272ee9bd80783a12f0495638b015a211"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/icicleio/react-adapter/zipball/3d1e727a272ee9bd80783a12f0495638b015a211",
+                "reference": "3d1e727a272ee9bd80783a12f0495638b015a211",
+                "shasum": ""
+            },
+            "require": {
+                "icicleio/icicle": "^0.9.1",
+                "react/event-loop": "^0.4",
+                "react/promise": "^2.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.6"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Icicle\\ReactAdapter\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@icicle.io"
+                }
+            ],
+            "description": "Adapts the event loop and promises of Icicle to interfaces compatible with components built for React.",
+            "homepage": "http://icicle.io",
+            "keywords": [
+                "adapter",
+                "loop",
+                "promise"
+            ],
+            "time": "2015-12-07 21:38:36"
+        },
+        {
             "name": "icicleio/socket",
             "version": "v0.5.3",
             "source": {
@@ -420,6 +518,46 @@
             "time": "2016-03-11 17:08:53"
         },
         {
+            "name": "jmikola/react-mongodb",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../react-mongodb",
+                "reference": "fb3fbc5097b2277d96cc905804f26da2abe73e59",
+                "shasum": null
+            },
+            "require": {
+                "ext-mongo": "~1.5",
+                "php": ">=5.4.0",
+                "react/dns": "0.4.*",
+                "react/event-loop": "0.4.*",
+                "react/promise": "~2.0",
+                "react/socket-client": "0.4.*",
+                "react/stream": "0.4.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jmikola\\React\\MongoDB\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Asynchronous MongoDB client for React PHP.",
+            "keywords": [
+                "async",
+                "client",
+                "mongodb",
+                "react"
+            ]
+        },
+        {
             "name": "nette/neon",
             "version": "v2.3.4",
             "source": {
@@ -516,16 +654,16 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "3.3.0",
+            "version": "3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "f44f53e5ceb7474a83b6e11e6623ff9d6f6da598"
+                "reference": "b4fe3b7387cb323fd15ad5837cae992422c9fa5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/f44f53e5ceb7474a83b6e11e6623ff9d6f6da598",
-                "reference": "f44f53e5ceb7474a83b6e11e6623ff9d6f6da598",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/b4fe3b7387cb323fd15ad5837cae992422c9fa5c",
+                "reference": "b4fe3b7387cb323fd15ad5837cae992422c9fa5c",
                 "shasum": ""
             },
             "require": {
@@ -537,6 +675,8 @@
             },
             "require-dev": {
                 "apigen/apigen": "^4.1",
+                "codeception/aspect-mock": "1.0.0",
+                "goaop/framework": "1.0.0-alpha.2",
                 "ircmaxell/random-lib": "^1.1",
                 "jakub-onderka/php-parallel-lint": "^0.9.0",
                 "mockery/mockery": "^0.9.4",
@@ -590,7 +730,302 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2016-03-22 18:40:53"
+            "time": "2016-04-24 00:30:41"
+        },
+        {
+            "name": "react/cache",
+            "version": "v0.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/cache.git",
+                "reference": "558f614891341b1d817a8cdf9a358948ec49638f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/cache/zipball/558f614891341b1d817a8cdf9a358948ec49638f",
+                "reference": "558f614891341b1d817a8cdf9a358948ec49638f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "react/promise": "~2.0|~1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "React\\Cache\\": "src\\"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Async caching.",
+            "keywords": [
+                "cache"
+            ],
+            "time": "2016-02-25 18:17:16"
+        },
+        {
+            "name": "react/dns",
+            "version": "v0.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/dns.git",
+                "reference": "62f6201e487df8add209cc42f05ffca33ee1ba05"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/dns/zipball/62f6201e487df8add209cc42f05ffca33ee1ba05",
+                "reference": "62f6201e487df8add209cc42f05ffca33ee1ba05",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "react/cache": "~0.4.0|~0.3.0",
+                "react/promise": "~2.0|~1.1",
+                "react/socket": "~0.4.0|~0.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "React\\Dns\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Async DNS resolver.",
+            "keywords": [
+                "dns",
+                "dns-resolver"
+            ],
+            "time": "2016-02-24 23:45:36"
+        },
+        {
+            "name": "react/event-loop",
+            "version": "v0.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/event-loop.git",
+                "reference": "164799f73175e1c80bba92a220ea35df6ca371dd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/event-loop/zipball/164799f73175e1c80bba92a220ea35df6ca371dd",
+                "reference": "164799f73175e1c80bba92a220ea35df6ca371dd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "suggest": {
+                "ext-event": "~1.0",
+                "ext-libev": "*",
+                "ext-libevent": ">=0.1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.5-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "React\\EventLoop\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Event loop abstraction layer that libraries can use for evented I/O.",
+            "keywords": [
+                "asynchronous",
+                "event-loop"
+            ],
+            "time": "2016-03-08 02:09:32"
+        },
+        {
+            "name": "react/promise",
+            "version": "v2.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/promise.git",
+                "reference": "8025426794f1944de806618671d4fa476dc7626f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/8025426794f1944de806618671d4fa476dc7626f",
+                "reference": "8025426794f1944de806618671d4fa476dc7626f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "React\\Promise\\": "src/"
+                },
+                "files": [
+                    "src/functions_include.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jan Sorgalla",
+                    "email": "jsorgalla@gmail.com"
+                }
+            ],
+            "description": "A lightweight implementation of CommonJS Promises/A for PHP",
+            "time": "2016-05-03 17:50:52"
+        },
+        {
+            "name": "react/socket",
+            "version": "v0.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/socket.git",
+                "reference": "ce015ec5879b96f5d30905f035f223aa85013fcc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/socket/zipball/ce015ec5879b96f5d30905f035f223aa85013fcc",
+                "reference": "ce015ec5879b96f5d30905f035f223aa85013fcc",
+                "shasum": ""
+            },
+            "require": {
+                "evenement/evenement": "~2.0|~1.0",
+                "php": ">=5.3.0",
+                "react/event-loop": "0.4.*|0.3.*",
+                "react/stream": "0.4.*|0.3.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "React\\Socket\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Library for building an evented socket server.",
+            "keywords": [
+                "Socket"
+            ],
+            "time": "2016-03-01 20:10:35"
+        },
+        {
+            "name": "react/socket-client",
+            "version": "v0.4.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/socket-client.git",
+                "reference": "a25539f2cd30b4be56e35de9f96f6aa744246cc2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/socket-client/zipball/a25539f2cd30b4be56e35de9f96f6aa744246cc2",
+                "reference": "a25539f2cd30b4be56e35de9f96f6aa744246cc2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "react/dns": "0.4.*",
+                "react/event-loop": "0.4.*",
+                "react/promise": "~2.0",
+                "react/stream": "0.4.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "React\\SocketClient\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Async connector to open TCP/IP and SSL/TLS based connections.",
+            "keywords": [
+                "Socket"
+            ],
+            "time": "2016-03-27 18:31:39"
+        },
+        {
+            "name": "react/stream",
+            "version": "v0.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/stream.git",
+                "reference": "305b2328d2a2e157bc13b61a0f5c6e41b666b188"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/reactphp/stream/zipball/305b2328d2a2e157bc13b61a0f5c6e41b666b188",
+                "reference": "305b2328d2a2e157bc13b61a0f5c6e41b666b188",
+                "shasum": ""
+            },
+            "require": {
+                "evenement/evenement": "^2.0|^1.0",
+                "php": ">=5.3.8"
+            },
+            "require-dev": {
+                "react/event-loop": "^0.4|^0.3",
+                "react/promise": "^2.0|^1.0"
+            },
+            "suggest": {
+                "react/event-loop": "^0.4",
+                "react/promise": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.5-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "React\\Stream\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Basic readable and writable stream interfaces that support piping.",
+            "keywords": [
+                "pipe",
+                "stream"
+            ],
+            "time": "2015-10-07 18:32:58"
         }
     ],
     "packages-dev": [
@@ -650,16 +1085,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "e3abefcd7f106677fd352cd7c187d6c969aa9ddc"
+                "reference": "a8773992b362b58498eed24bf85005f363c34771"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/e3abefcd7f106677fd352cd7c187d6c969aa9ddc",
-                "reference": "e3abefcd7f106677fd352cd7c187d6c969aa9ddc",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/a8773992b362b58498eed24bf85005f363c34771",
+                "reference": "a8773992b362b58498eed24bf85005f363c34771",
                 "shasum": ""
             },
             "require": {
@@ -688,7 +1123,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2015-11-07 22:20:37"
+            "time": "2015-11-20 12:04:31"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -1119,16 +1554,16 @@
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "3.1.2",
+            "version": "3.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "7c34c9bdde4131b824086457a3145e27dba10ca1"
+                "reference": "151c96874bff6fe61a25039df60e776613a61489"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/7c34c9bdde4131b824086457a3145e27dba10ca1",
-                "reference": "7c34c9bdde4131b824086457a3145e27dba10ca1",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/151c96874bff6fe61a25039df60e776613a61489",
+                "reference": "151c96874bff6fe61a25039df60e776613a61489",
                 "shasum": ""
             },
             "require": {
@@ -1171,7 +1606,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2016-03-24 05:58:25"
+            "time": "2016-04-20 14:39:26"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1336,16 +1771,16 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "1.3.5",
+            "version": "1.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "dc7a29032cf72b54f36dac15a1ca5b3a1b6029bf"
+                "reference": "2292b116f43c272ff4328083096114f84ea46a56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/dc7a29032cf72b54f36dac15a1ca5b3a1b6029bf",
-                "reference": "dc7a29032cf72b54f36dac15a1ca5b3a1b6029bf",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/2292b116f43c272ff4328083096114f84ea46a56",
+                "reference": "2292b116f43c272ff4328083096114f84ea46a56",
                 "shasum": ""
             },
             "require": {
@@ -1382,7 +1817,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2016-02-26 18:40:46"
+            "time": "2016-05-04 07:59:13"
         },
         {
             "name": "sebastian/exporter",
@@ -1687,7 +2122,7 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.0.4",
+            "version": "v3.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
@@ -1737,7 +2172,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "jmikola/react-mongodb": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

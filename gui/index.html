@@ -47,10 +47,18 @@
                                 var newDiv = document.createElement('div');
                                 newDiv.id = received_msg.hostId;
                                 newDiv.className = 'box';
-                                var newContent = document.createTextNode("Waiting for any message about this server")
+                                var newContent = document.createTextNode(received_msg.url)
                                 newDiv.appendChild(newContent);
                             }
                             servers.appendChild(newDiv);
+                            break;
+
+
+                        case 'serverStatus':
+                            var hostBox = document.getElementById(received_msg.hostId);
+                            if (hostBox) {
+                                hostBox.innerHTML += JSON.stringify(received_msg.data) + "<br>";
+                            }
                             break;
                         case 'size':
                             var hostBox = document.getElementById(received_msg.hostId);

@@ -25,9 +25,17 @@
         "icicleio/http": "^0.3",
         "icicleio/websocket": "^0.1.0",
         "ramsey/uuid": "^3.3",
+        "jmikola/react-mongodb": "@dev",
+        "icicleio/react-adapter": "^0.4.0",
         "nette/neon": "^2.3"
     },
     "require-dev": {
         "phpunit/phpunit": "5.3.0"
-    }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../react-mongodb"
+        }
+    ]
 }

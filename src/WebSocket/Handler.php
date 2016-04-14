@@ -1,18 +1,19 @@
 <?php
-namespace MongoMonitoring\Server;
+namespace MongoMonitoring\WebSocket;
 
 use Icicle\Http\Message\BasicResponse;
 use Icicle\Http\Message\Request;
 use Icicle\Http\Server\RequestHandler;
 use Icicle\Socket;
+use Jmikola\React\MongoDB\ConnectionFactory;
 
-class ApplicationRequestHandler implements RequestHandler
+class Handler implements RequestHandler
 {
     private $application;
 
-    public function __construct($instanceList, &$stream)
+    public function __construct($loop, $instanceList)
     {
-        $this->application = new MongoApplication($instanceList);
+        $this->application = new MongoApplication(new ConnectionFactory($loop), $instanceList);
     }
 
     public function onRequest(Request $request, Socket\Socket $socket)
@@ -22,7 +23,6 @@ class ApplicationRequestHandler implements RequestHandler
 
     public function onError($code, Socket\Socket $socket)
     {
-        var_dump($code);
         return new BasicResponse($code);
     }
 }
