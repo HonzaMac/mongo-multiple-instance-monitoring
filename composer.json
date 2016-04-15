@@ -19,6 +19,8 @@
     },
     "minimum-stability": "stable",
     "require": {
+        "php": ">=5.5",
+        "ext-mongo": "*",
         "icicleio/icicle": "^0.9",
         "icicleio/http": "^0.3",
         "icicleio/websocket": "^0.1.0",
