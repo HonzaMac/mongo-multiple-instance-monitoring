@@ -5,7 +5,7 @@ php:
 install:
   - composer install --no-interaction
 
-before_script: phpenv config-add .build/php.ini
+before_install: phpenv config-add .build/php.ini
 
 script:
-  - vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+  - vendor/bin/phpunit
