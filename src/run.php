@@ -13,14 +13,17 @@ use MongoDB;
 use MongoMonitoring\Server\ApplicationRequestHandler;
 use Nette\Neon\Neon;
 
+$defaultPort = 9900;
 $configPath = 'config.neon';
 $fileContent = loadFile($configPath);
 if (null === $fileContent) {
     $fileContent = loadFile('../'. $configPath);
 }
 $config = Neon::decode($fileContent);
+$port = isset($config['server']['port'])?$config['server']['port']: $defaultPort;
+
 $server = new Server(new ApplicationRequestHandler($config['hosts'], new MemoryStream()));
-$server->listen(9900);
+$server->listen($port);
 
 Loop\run();
 
