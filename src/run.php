@@ -13,9 +13,12 @@ use MongoDB;
 use MongoMonitoring\Server\ApplicationRequestHandler;
 use Nette\Neon\Neon;
 
-$configPath = '../config.neon';
-
-$config = Neon::decode(loadFile($configPath));
+$configPath = 'config.neon';
+$fileContent = loadFile($configPath);
+if (null === $fileContent) {
+    $fileContent = loadFile('../'. $configPath);
+}
+$config = Neon::decode($fileContent);
 $server = new Server(new ApplicationRequestHandler($config['hosts'], new MemoryStream()));
 $server->listen(9900);
 
