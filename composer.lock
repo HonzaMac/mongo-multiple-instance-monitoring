@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "25ab5128e599294ee71e091f6292b9de",
-    "content-hash": "e2563a5bd2fbd2ded0844e2042658f34",
+    "hash": "80abd7afcab4e64de7f8997046e8941c",
+    "content-hash": "2db49a1ad59b3eec175cccc6b37ade53",
     "packages": [
         {
             "name": "daverandom/libdns",
@@ -418,6 +418,53 @@
                 "websocket"
             ],
             "time": "2016-03-11 17:08:53"
+        },
+        {
+            "name": "nette/neon",
+            "version": "v2.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nette/neon.git",
+                "reference": "0042f72a2c51b24f5de3ca5f365494cd9b0d45f0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nette/neon/zipball/0042f72a2c51b24f5de3ca5f365494cd9b0d45f0",
+                "reference": "0042f72a2c51b24f5de3ca5f365494cd9b0d45f0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "php": ">=5.3.1"
+            },
+            "require-dev": {
+                "nette/tester": "~1.4"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause",
+                "GPL-2.0",
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "David Grudl",
+                    "homepage": "https://davidgrudl.com"
+                },
+                {
+                    "name": "Nette Community",
+                    "homepage": "https://nette.org/contributors"
+                }
+            ],
+            "description": "Nette NEON: parser & generator for Nette Object Notation",
+            "homepage": "http://ne-on.org",
+            "time": "2016-01-13 14:20:27"
         },
         {
             "name": "paragonie/random_compat",
@@ -1694,7 +1741,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "5.6.*"
+        "php": ">=5.5",
+        "ext-mongo": "*"
     },
     "platform-dev": []
 }
