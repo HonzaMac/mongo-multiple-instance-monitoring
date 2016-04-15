@@ -5,6 +5,7 @@ namespace MongoMonitoring\Server;
 
 use Exception;
 use Generator;
+use Icicle\Awaitable\Awaitable;
 use Icicle\Coroutine\Coroutine;
 use Icicle\Http\Message\Request;
 use Icicle\Http\Message\Response;
@@ -42,7 +43,7 @@ class MongoApplication implements Application
      * @param Response $response
      * @param Request $request
      * @param Socket $socket
-     * @return Generator|\Icicle\Awaitable\Awaitable|Response|void
+     * @return Generator|Awaitable|Response|void
      */
     public function onHandshake(Response $response, Request $request, Socket $socket)
     {
@@ -55,11 +56,11 @@ class MongoApplication implements Application
      *
      * @coroutine
      *
-     * @param \Icicle\WebSocket\Connection $connection
-     * @param \Icicle\Http\Message\Response $response
-     * @param \Icicle\Http\Message\Request $request
+     * @param Connection $connection
+     * @param Response $response
+     * @param Request $request
      *
-     * @return \Generator|\Icicle\Awaitable\Awaitable|null
+     * @return Generator|Awaitable|null
      */
     public function onConnection(Connection $connection, Response $response, Request $request)
     {
