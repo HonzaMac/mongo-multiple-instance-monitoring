@@ -5,10 +5,9 @@ namespace MongoMonitoring\Server\Messages;
 
 
 /**
- * @property string hostId
  * @property string dbName
  */
-class Server implements IResponse
+class Server extends Response
 {
 
     public static function create($hostId, $dbName, $serverStatus)
@@ -22,14 +21,5 @@ class Server implements IResponse
         $serverMessage->opCounters = $serverStatus['opcounters'];
         return $serverMessage;
     }
-    
-    public function getHostId()
-    {
-        return $this->hostId;
-    }
 
-    public function toJson()
-    {
-        return json_encode($this);
-    }
 }
