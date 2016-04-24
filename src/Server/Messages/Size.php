@@ -11,6 +11,13 @@ namespace MongoMonitoring\Server\Messages;
 class Size extends Response
 {
 
+    /**
+     * @param string $hostId
+     * @param string $dbname
+     * @param int $actualSize
+     * @param int $storageSize
+     * @return Size
+     */
     public static function create($hostId, $dbname, $actualSize, $storageSize)
     {
         $sizeMessage = (new self);

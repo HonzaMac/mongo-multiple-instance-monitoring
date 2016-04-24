@@ -9,6 +9,12 @@ namespace MongoMonitoring\Server\Messages;
 class Error extends Response
 {
 
+    /**
+     * @param string $hostId
+     * @param string $message
+     * @param int $code
+     * @return Error
+     */
     public static function create($hostId, $message, $code = 0)
     {
         $sizeMessage = (new self);

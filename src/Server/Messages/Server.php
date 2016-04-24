@@ -10,6 +10,12 @@ namespace MongoMonitoring\Server\Messages;
 class Server extends Response
 {
 
+    /**
+     * @param string $hostId
+     * @param string $dbName
+     * @param array $serverStatus
+     * @return Server
+     */
     public static function create($hostId, $dbName, $serverStatus)
     {
         $serverMessage = (new self);

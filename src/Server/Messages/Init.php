@@ -12,6 +12,11 @@ namespace MongoMonitoring\Server\Messages;
 class Init extends Response
 {
 
+    /**
+     * @param string $inistanceIp
+     * @param array $listDbs
+     * @return Init
+     */
     public static function create($inistanceIp, $listDbs)
     {
         $init = (new self);

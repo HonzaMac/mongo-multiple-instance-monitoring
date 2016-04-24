@@ -2,14 +2,15 @@
 namespace MongoMonitoring\Server\Messages;
 
 
-/**
- * @property string id
- * @property string type
- * @property int size
- */
 interface IResponse
 {
+    /**
+     * @return string
+     */
     public function getHostId();
 
+    /**
+     * @return string
+     */
     public function toJson();
 }
