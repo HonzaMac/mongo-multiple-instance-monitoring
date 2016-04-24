@@ -100,11 +100,11 @@ class MongoApplication implements Application
                 $checkSum[$key] = $sum;
                 $sizeMessage = Size::create($dbId, $db['name'], $stats['dataSize'], $stats['storageSize']);
                 $output = sprintf("DB %s, coll: %s with size %d on storage %d" . PHP_EOL, $stats['db'], $stats['collections'], $stats['dataSize'], $stats['storageSize']);
-                yield ($connection->send($sizeMessage->toJsonMessage()));
+                yield ($connection->send($sizeMessage));
             }
         } catch (Exception $e) {
             $errorMessage = Error::create($dbId, $e->getMessage(), $e->getCode());
-            yield ($connection->send($errorMessage->toJsonMessage()));
+            yield ($connection->send($errorMessage));
         }
     }
 
@@ -123,7 +123,7 @@ class MongoApplication implements Application
         $id = $initResponse->getHostId();
         $this->instanceList[$id]['client'] = $mongoClient;
         $this->instanceList[$id]['databases'] = $databases;
-        yield ($connection->send($initResponse->toJsonMessage()));
+        yield ($connection->send($initResponse));
     }
 
     /**
@@ -143,12 +143,12 @@ class MongoApplication implements Application
             if ($sum !== @$checkSum[$key]) {
                 $checkSum[$key] = $sum;
                 $serverMessage = Server::create($dbId, $db['name'], $serverStatus);
-                yield ($connection->send($serverMessage->toJsonMessage()));
+                yield ($connection->send($serverMessage));
             }
 
         } catch (Exception $e) {
             $errorMessage = Error::create($dbId, $e->getMessage(), $e->getCode());
-            yield ($connection->send($errorMessage->toJsonMessage()));
+            yield ($connection->send($errorMessage));
         }
     }
 

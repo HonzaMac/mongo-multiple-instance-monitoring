@@ -19,12 +19,13 @@ abstract class Response implements IResponse
     {
         return $this->hostId;
     }
-
+    
     /**
      * @return string
      */
-    public function toJsonMessage()
+    public function __toString()
     {
         return json_encode($this) . PHP_EOL;
     }
+
 }
