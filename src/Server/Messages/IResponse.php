@@ -12,5 +12,5 @@ interface IResponse
     /**
      * @return string
      */
-    public function toJson();
+    public function toJsonMessage();
 }

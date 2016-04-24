@@ -22,8 +22,8 @@ class Response implements IResponse
     /**
      * @return string
      */
-    public function toJson()
+    public function toJsonMessage()
     {
-        return json_encode($this);
+        return json_encode($this) . PHP_EOL;
     }
 }
