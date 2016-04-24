@@ -4,7 +4,6 @@ namespace MongoMonitoring\Server\Messages;
 
 /**
  * @property string dbname
- * @property string type
  * @property int size
  * @property int storageSize
  */

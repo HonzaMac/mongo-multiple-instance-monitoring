@@ -4,7 +4,6 @@
 namespace MongoMonitoring\Server\Messages;
 
 /**
- * @property string type
  * @property string url
  * @property int totalSize
  * @property array listDBs

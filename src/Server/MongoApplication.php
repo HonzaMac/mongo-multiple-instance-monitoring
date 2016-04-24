@@ -132,6 +132,7 @@ class MongoApplication implements Application
      * @param string $dbId
      * @param $db
      * @param array $checkSum
+     * @return Generator
      */
     private function fetchServerStats(Connection $connection, MongoClient $client, $dbId, $db, $checkSum)
     {

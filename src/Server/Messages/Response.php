@@ -7,6 +7,7 @@ namespace MongoMonitoring\Server\Messages;
  * Class Response
  *
  * @property string $hostId
+ * @property string type
  */
 class Response implements IResponse
 {

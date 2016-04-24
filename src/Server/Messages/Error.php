@@ -3,8 +3,8 @@
 namespace MongoMonitoring\Server\Messages;
 
 /**
- * @property string type
- * @property int size
+ * @property string message
+ * @property int code
  */
 class Error extends Response
 {
