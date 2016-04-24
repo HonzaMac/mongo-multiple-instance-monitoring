@@ -25,7 +25,6 @@
 
         function WebSocketTest(host, port) {
             if ("WebSocket" in window) {
-                console.log("WebSocket is supported by your Browser");
 
                 // Let us open a web socket
                 var url = "ws://" + host + ":" + port + "/echo";
@@ -46,11 +45,11 @@
                                 newDiv = existingBox;
                             } else {
                                 var newDiv = document.createElement('div');
+                                newDiv.id = received_msg.hostId;
+                                newDiv.className = 'box';
+                                var newContent = document.createTextNode("Waiting for any message about this server")
+                                newDiv.appendChild(newContent);
                             }
-                            newDiv.id = received_msg.hostId;
-                            newDiv.className = 'box';
-                            var newContent = document.createTextNode("Waiting for any message about this server")
-                            newDiv.appendChild(newContent);
                             servers.appendChild(newDiv);
                             break;
                         case 'size':
