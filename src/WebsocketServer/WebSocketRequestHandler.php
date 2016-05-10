@@ -1,12 +1,12 @@
 <?php
-namespace MongoMonitoring\Server;
+namespace MongoMonitoring\WebsocketServer;
 
 use Icicle\Http\Message\BasicResponse;
 use Icicle\Http\Message\Request;
 use Icicle\Http\Server\RequestHandler;
 use Icicle\Socket;
 
-class ApplicationRequestHandler implements RequestHandler
+class WebSocketRequestHandler implements RequestHandler
 {
     private $application;
 

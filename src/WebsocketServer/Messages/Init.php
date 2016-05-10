@@ -1,7 +1,7 @@
 <?php
 
 
-namespace MongoMonitoring\Server\Messages;
+namespace MongoMonitoring\WebsocketServer\Messages;
 
 /**
  * @property string url

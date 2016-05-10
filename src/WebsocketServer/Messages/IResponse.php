@@ -1,5 +1,5 @@
 <?php
-namespace MongoMonitoring\Server\Messages;
+namespace MongoMonitoring\WebsocketServer\Messages;
 
 
 interface IResponse

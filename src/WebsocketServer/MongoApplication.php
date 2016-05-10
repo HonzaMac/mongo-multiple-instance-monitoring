@@ -1,7 +1,7 @@
 <?php
 
 
-namespace MongoMonitoring\Server;
+namespace MongoMonitoring\WebsocketServer;
 
 use Exception;
 use Generator;
@@ -16,10 +16,10 @@ use Icicle\WebSocket\Close;
 use Icicle\WebSocket\Connection;
 use MongoClient;
 use MongoDB;
-use MongoMonitoring\Server\Messages\Error;
-use MongoMonitoring\Server\Messages\Init;
-use MongoMonitoring\Server\Messages\Server;
-use MongoMonitoring\Server\Messages\Size;
+use MongoMonitoring\WebsocketServer\Messages\Error;
+use MongoMonitoring\WebsocketServer\Messages\Init;
+use MongoMonitoring\WebsocketServer\Messages\Server;
+use MongoMonitoring\WebsocketServer\Messages\Size;
 
 class MongoApplication implements Application
 {
@@ -69,8 +69,6 @@ class MongoApplication implements Application
         }
         $checkSum = $checkSumServerStatus = [];
         while ($connection->isOpen()) {
-
-
             foreach ($this->instanceList as $dbId => $instance) {
                 foreach ($instance['databases'] as $dbKey => $db) {
                     yield (new Coroutine($this->fetchServerStats($connection, $instance['client'], $dbId, $db, $checkSumServerStatus)))->delay(self::DELAY_SERVER_STATUS);
