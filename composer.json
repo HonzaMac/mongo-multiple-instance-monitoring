@@ -33,7 +33,7 @@
     },
     "repositories": [
         {
-            "type": "git",
+            "type": "vcs",
             "url": "git@github.com:jmikola/react-mongodb.git"
         }
     ]

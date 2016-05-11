@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bf8092ce1465039ef1b7efb61cd7c3be",
-    "content-hash": "4102afcb84730bd784ce183ad124b9e9",
+    "hash": "610831d9347478a77cdc35772e68c065",
+    "content-hash": "342e9c67b0145e100b9c06cc7580d401",
     "packages": [
         {
             "name": "daverandom/libdns",
@@ -522,8 +522,14 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:jmikola/react-mongodb.git",
+                "url": "https://github.com/jmikola/react-mongodb.git",
                 "reference": "23716c386fa5a5d859d00804cfd01698d3539182"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jmikola/react-mongodb/zipball/23716c386fa5a5d859d00804cfd01698d3539182",
+                "reference": "23716c386fa5a5d859d00804cfd01698d3539182",
+                "shasum": ""
             },
             "require": {
                 "ext-mongo": "~1.5",
@@ -555,6 +561,10 @@
                 "mongodb",
                 "react"
             ],
+            "support": {
+                "source": "https://github.com/jmikola/react-mongodb/tree/master",
+                "issues": "https://github.com/jmikola/react-mongodb/issues"
+            },
             "time": "2014-09-02 20:35:20"
         },
         {
