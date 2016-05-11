@@ -30,8 +30,9 @@ $config = Neon::decode($fileContent);
 $port = isset($config['server']['port'])?$config['server']['port']: $defaultPort;
 
 $icicleLoop = new ReactLoop();
-$server = new Server(new Handler($icicleLoop, $config['hosts'], new MemoryStream()));
+$server = new Server(new Handler($icicleLoop, $config['hosts']));
 $server->listen($port);
+echo 'Websocket server is listenning on port ' . $port . PHP_EOL;
 
 $icicleLoop->run();
 

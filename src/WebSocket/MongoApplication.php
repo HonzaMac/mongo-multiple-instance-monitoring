@@ -78,6 +78,7 @@ class MongoApplication implements Application
      */
     public function fetchInit(Connection &$websocketConnection, $instanceIp)
     {
+        echo 'Connecting to '. $instanceIp . PHP_EOL;
         list($host, $port) = explode(':', $instanceIp);
         /** @var MongoConnection $connection */
         $connection = (yield Awaitable\adapt($this->factory->create($host, $port, ['connectTimeoutMS' => 500, 'socketTimeoutMS' => 500])));
@@ -87,6 +88,7 @@ class MongoApplication implements Application
         $reply = (yield Awaitable\adapt($connection->send($listDatabasesQuery)));
         $listDbs = current(iterator_to_array($reply->getIterator()));
         $initResponse = Messages\Init::create($instanceIp, $listDbs);
+        echo $instanceIp . ': getting list of databases'. PHP_EOL;
 
         yield $websocketConnection->send($initResponse);
 
@@ -94,6 +96,7 @@ class MongoApplication implements Application
         $reply = (yield Awaitable\adapt($connection->send($serverStatusQuery)));
         $serverStatus = current(iterator_to_array($reply->getIterator()));
         $response = Messages\ServerStatus::create($initResponse->getHostId(), $serverStatus);
+        echo 'Sending server stats for ' . $instanceIp . PHP_EOL;
         yield $websocketConnection->send($response);
 
         $databases = $listDbs['databases'];
@@ -103,6 +106,7 @@ class MongoApplication implements Application
             $reply = (yield Awaitable\adapt($connection->send($dbStatsQuery)));
             $dbStats = current(iterator_to_array($reply->getIterator()));
             $response = Messages\DbStats::create($initResponse->getHostId(), $dbStats);
+            echo $instanceIp .': sending database stats for ['. $dbName .']' . PHP_EOL;
             yield $websocketConnection->send($response);
 
         }
