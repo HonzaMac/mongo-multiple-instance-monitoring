@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9556b7f5a0a82210007e9bf801d8fc4c",
-    "content-hash": "a95b4ed53853a7810c813f72e9b6a529",
+    "hash": "bf8092ce1465039ef1b7efb61cd7c3be",
+    "content-hash": "4102afcb84730bd784ce183ad124b9e9",
     "packages": [
         {
             "name": "daverandom/libdns",
@@ -520,11 +520,10 @@
         {
             "name": "jmikola/react-mongodb",
             "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../react-mongodb",
-                "reference": "fb3fbc5097b2277d96cc905804f26da2abe73e59",
-                "shasum": null
+            "source": {
+                "type": "git",
+                "url": "git@github.com:jmikola/react-mongodb.git",
+                "reference": "23716c386fa5a5d859d00804cfd01698d3539182"
             },
             "require": {
                 "ext-mongo": "~1.5",
@@ -555,7 +554,8 @@
                 "client",
                 "mongodb",
                 "react"
-            ]
+            ],
+            "time": "2014-09-02 20:35:20"
         },
         {
             "name": "nette/neon",
