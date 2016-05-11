@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "166683250ecf36d5b14d60e02ea80210",
-    "content-hash": "f1884012ca82a023abf1e8e6bbd2bddc",
+    "hash": "9556b7f5a0a82210007e9bf801d8fc4c",
+    "content-hash": "a95b4ed53853a7810c813f72e9b6a529",
     "packages": [
         {
             "name": "daverandom/libdns",
@@ -2178,8 +2178,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.5",
-        "ext-mongo": "*"
+        "php": ">=5.5"
     },
     "platform-dev": []
 }
