@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "610831d9347478a77cdc35772e68c065",
-    "content-hash": "342e9c67b0145e100b9c06cc7580d401",
+    "hash": "2ce20b3bdab8e9ac16ea8582957e277b",
+    "content-hash": "88d61073cce1440afd2af8adac4592c2",
     "packages": [
         {
             "name": "daverandom/libdns",
