@@ -12,16 +12,17 @@ class Init extends Response
 {
 
     /**
-     * @param string $inistanceIp
+     * @param string $instanceIp
+     * @param string $hostId
      * @param array $listDbs
      * @return Init
      */
-    public static function create($inistanceIp, $listDbs)
+    public static function create($instanceIp, $hostId, $listDbs)
     {
         $init = (new self);
-        $init->hostId = md5($inistanceIp);
+        $init->hostId = $hostId;
         $init->type = 'init';
-        $init->url = $inistanceIp;
+        $init->url = $instanceIp;
         $init->totalSize = $listDbs['totalSize'];
         $init->listDBs = $listDbs;
         return $init;
