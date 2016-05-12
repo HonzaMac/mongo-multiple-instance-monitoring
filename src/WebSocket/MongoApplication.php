@@ -99,14 +99,21 @@ class MongoApplication implements Application
         echo $instanceIp . ': getting list of databases'. PHP_EOL;
         yield $websocketConnection->send($initResponse);
 
-        $serverStatusQuery = new Query('admin.$cmd', ['serverStatus' => 1], null, 0, 1); // this works
+        $hostInfoQuery = new Query('admin.$cmd', ['hostInfo' => 1], null, 0, 1);
+        $hostInfoReply = (yield Awaitable\adapt($connection->send($hostInfoQuery)));
+        /** @var Reply $hostInfoReply */
+        $hostInfo = current(iterator_to_array($hostInfoReply->getIterator()));
+        echo $instanceIp . ': getting host info' . PHP_EOL;
+        yield $websocketConnection->send(Messages\HostInfo::create($hostId, $hostInfo));
+
+        $serverStatusQuery = new Query('admin.$cmd', ['serverStatus' => 1], null, 0, 1);
         $serverStatusReply = (yield Awaitable\adapt($connection->send($serverStatusQuery)));
         /** @var Reply $serverStatusReply */
         $serverStatus = current(iterator_to_array($serverStatusReply->getIterator()));
         echo $instanceIp . ': getting server stats' . PHP_EOL;
         yield $websocketConnection->send(Messages\ServerStatus::create($hostId, $serverStatus));
 
-        $topQuery = new Query('admin.$cmd', ['top' => 1], null, 0, 1); // this works
+        $topQuery = new Query('admin.$cmd', ['top' => 1], null, 0, 1);
         $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
         /** @var Reply $topReply */
         $top = current(iterator_to_array($topReply->getIterator()));
