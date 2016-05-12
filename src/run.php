@@ -3,14 +3,9 @@ namespace MongoMonitoring;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-use Icicle\Awaitable;
-use Icicle\Coroutine;
 use Icicle\Loop;
 use Icicle\ReactAdapter\ReactLoop;
-use Icicle\Socket;
 use Icicle\WebSocket\Server\Server;
-use MongoDB;
-use MongoMonitoring\Server\ApplicationRequestHandler;
 use MongoMonitoring\WebSocket\Handler;
 use Nette\Neon\Neon;
 
