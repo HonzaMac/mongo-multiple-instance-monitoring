@@ -28,6 +28,8 @@ class MongoApplication implements Application
      * @var ConnectionFactory
      */
     private $connectionFactory;
+    /** @var array */
+    private $cache = [];
 
     public function __construct(ConnectionFactory $factory, $ipList)
     {
@@ -211,12 +213,20 @@ class MongoApplication implements Application
      */
     private function fetchDbStatus(Connection $websocketConnection, $instanceIp, $dbName, $connection)
     {
+        $cacheKey = $instanceIp . $dbName;
         $dbStatsQuery = new Query($dbName . '.$cmd', ['dbStats' => 1], null, 0, 1);
         /** @var Reply $dbStatsReply */
         $dbStatsReply = (yield Awaitable\adapt($connection->send($dbStatsQuery)));
         $dbStats = current(iterator_to_array($dbStatsReply->getIterator()));
-        echo $instanceIp . ': sending database stats for [' . $dbName . ']' . PHP_EOL;
-        yield $websocketConnection->send(Messages\DbStats::create($instanceIp, $dbStats));
+
+        $sum = md5(serialize($dbStats));
+        if ($sum !== @$this->cache[$cacheKey]) {
+            $this->cache[$cacheKey] = $sum;
+            echo $instanceIp . ': sending database stats for [' . $dbName . ']' . PHP_EOL;
+            yield $websocketConnection->send(Messages\DbStats::create($instanceIp, $dbStats));
+        } else {
+            echo $instanceIp . ': no change database stats' . PHP_EOL;
+        }
     }
 
     /**
@@ -227,11 +237,20 @@ class MongoApplication implements Application
      */
     private function fetchLog(Connection $websocketConnection, $instanceIp, $connection)
     {
+        $cacheKey = $instanceIp;
+
         $query = new Query('admin.$cmd', ['getLog' => 'global'], null, 0, 1);
         $reply = (yield Awaitable\adapt($connection->send($query)));
         /** @var Reply $reply */
         $response = current(iterator_to_array($reply->getIterator()));
-        echo $instanceIp . ': getting log' . PHP_EOL;
-        yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
+        $sum = md5(serialize($response));
+        if ($sum !== @$this->cache[$cacheKey]) {
+            $this->cache[$cacheKey] = $sum;
+
+            echo $instanceIp . ': getting log' . PHP_EOL;
+            yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
+        } else {
+            echo $instanceIp . ': no change in log' . PHP_EOL;
+        }
     }
 }
