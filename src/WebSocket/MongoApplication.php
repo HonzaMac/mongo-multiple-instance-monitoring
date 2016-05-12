@@ -5,6 +5,7 @@ namespace MongoMonitoring\WebSocket;
 
 use Generator;
 use Icicle\Awaitable;
+use Icicle\Coroutine\Coroutine;
 use Icicle\Http\Message\Request;
 use Icicle\Http\Message\Response;
 use Icicle\Loop;
@@ -59,22 +60,21 @@ class MongoApplication implements Application
      */
     public function onConnection(Connection $websocketConnection, Response $response, Request $request)
     {
-        $databaseCoroutines = [];
+        $connectedInstances = [];
         foreach ($this->ipList as $instanceIp) {
             $generator = $this->fetch($websocketConnection, $instanceIp);
             list($connection, $databases) = (yield $generator);
-
-            foreach ($databases as $dbId => $db) {
-                $databaseCoroutines[] = [$connection, $instanceIp, $db['name']];
-            }
-            echo 'ANOTHER CYCLE' . PHP_EOL;
+            $connectedInstances[] = [$connection, $instanceIp, $databases];
         }
         while ($websocketConnection->isOpen()) {
-            foreach ($databaseCoroutines as list($connection, $instanceIp, $dbName)) {
-                $awaitable = $this->fetchDbStatus($websocketConnection, $instanceIp, $dbName, $connection);
-                yield $awaitable;
+            foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
+                foreach ($databases as $db) {
+                    yield (new Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection)))->wait();
+                }
+                yield (new Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection)))->wait();
             }
             yield \Icicle\Coroutine\sleep(3);
+
         }
     }
 
@@ -90,6 +90,7 @@ class MongoApplication implements Application
         $connection = (yield $this->connectToHost($instanceIp, $host, $port));
         $listDbs = (yield $this->fetchListDatabase($websocketConnection, $instanceIp, $connection));
 
+        yield $this->fetchBuildInfo($websocketConnection, $instanceIp, $connection);
         yield $this->fetchHostInfo($websocketConnection, $instanceIp, $connection);
         yield $this->fetchServerStatus($websocketConnection, $instanceIp, $connection);
         yield $this->fetchTop($websocketConnection, $instanceIp, $connection);
@@ -99,10 +100,10 @@ class MongoApplication implements Application
     }
 
     /**
-     * @param $instanceIp
-     * @param $host
-     * @param $port
-     * @return Awaitable\Awaitable|\Jmikola\React\MongoDB\Connection
+     * @param string $instanceIp
+     * @param string $host
+     * @param int $port
+     * @return Awaitable\Awaitable|MongoConnection
      */
     private function connectToHost($instanceIp, $host, $port)
     {
@@ -120,10 +121,9 @@ class MongoApplication implements Application
 
     /**
      * @param Connection $websocketConnection
-     * @param $instanceIp
-     * @param $connection
+     * @param string $instanceIp
+     * @param MongoConnection $connection
      * @return Generator|mixed
-     * @internal param $hostId
      */
     private function fetchListDatabase(Connection $websocketConnection, $instanceIp, $connection)
     {
@@ -140,10 +140,25 @@ class MongoApplication implements Application
 
     /**
      * @param Connection $websocketConnection
-     * @param $instanceIp
-     * @param $connection
+     * @param string $instanceIp
+     * @param MongoConnection $connection
      * @return Generator
-     * @internal param $hostId
+     */
+    private function fetchBuildInfo(Connection $websocketConnection, $instanceIp, $connection)
+    {
+        $query = new Query('admin.$cmd', ['buildInfo' => 1], null, 0, 1);
+        $reply = (yield Awaitable\adapt($connection->send($query)));
+        /** @var Reply $reply */
+        $response = current(iterator_to_array($reply->getIterator()));
+        echo $instanceIp . ': getting build-info' . PHP_EOL;
+        yield $websocketConnection->send(Messages\BuildInfo::create($instanceIp, $response));
+    }
+
+    /**
+     * @param Connection $websocketConnection
+     * @param string $instanceIp
+     * @param MongoConnection $connection
+     * @return Generator
      */
     private function fetchHostInfo(Connection $websocketConnection, $instanceIp, $connection)
     {
@@ -157,10 +172,9 @@ class MongoApplication implements Application
 
     /**
      * @param Connection $websocketConnection
-     * @param $instanceIp
-     * @param $connection
+     * @param string $instanceIp
+     * @param MongoConnection $connection
      * @return Generator
-     * @internal param $hostId
      */
     private function fetchServerStatus(Connection $websocketConnection, $instanceIp, $connection)
     {
@@ -174,10 +188,9 @@ class MongoApplication implements Application
 
     /**
      * @param Connection $websocketConnection
-     * @param $instanceIp
-     * @param $connection
+     * @param string $instanceIp
+     * @param MongoConnection $connection
      * @return Generator
-     * @internal param $hostId
      */
     private function fetchTop(Connection $websocketConnection, $instanceIp, $connection)
     {
@@ -191,11 +204,10 @@ class MongoApplication implements Application
 
     /**
      * @param Connection $websocketConnection
-     * @param $instanceIp
-     * @param $dbName
-     * @param $connection
+     * @param string $instanceIp
+     * @param string $dbName
+     * @param MongoConnection $connection
      * @return Generator
-     * @internal param $hostId
      */
     private function fetchDbStatus(Connection $websocketConnection, $instanceIp, $dbName, $connection)
     {
@@ -206,9 +218,20 @@ class MongoApplication implements Application
         echo $instanceIp . ': sending database stats for [' . $dbName . ']' . PHP_EOL;
         yield $websocketConnection->send(Messages\DbStats::create($instanceIp, $dbStats));
     }
+
+    /**
+     * @param Connection $websocketConnection
+     * @param string $instanceIp
+     * @param MongoConnection $connection
+     * @return Generator
+     */
+    private function fetchLog(Connection $websocketConnection, $instanceIp, $connection)
+    {
+        $query = new Query('admin.$cmd', ['getLog' => 'global'], null, 0, 1);
+        $reply = (yield Awaitable\adapt($connection->send($query)));
+        /** @var Reply $reply */
+        $response = current(iterator_to_array($reply->getIterator()));
+        echo $instanceIp . ': getting log' . PHP_EOL;
+        yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
+    }
 }
-
-//  $db['stats'] = \MongoMonitoring\command($mongoDb, 'db.stats()');
-//  $db['version'] = \MongoMonitoring\command($mongoDb, 'db.version()');
-//  $db['hostInfo'] = \MongoMonitoring\command($mongoDb, 'db.hostInfo()');
-
