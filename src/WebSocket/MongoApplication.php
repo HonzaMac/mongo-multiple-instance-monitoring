@@ -95,7 +95,7 @@ class MongoApplication implements Application
      * @return Generator
      * @internal param Connection $connection
      */
-    public function fetch(Connection $websocketConnection, $instanceIp, $cache)
+    public function fetch(Connection $websocketConnection, $instanceIp, &$cache)
     {
         list($host, $port) = explode(':', $instanceIp);
         $connection = (yield $this->connectToHost($instanceIp, $host, $port));
@@ -199,7 +199,7 @@ class MongoApplication implements Application
      * @param array $cache
      * @return Generator
      */
-    private function fetchServerStatus(Connection $websocketConnection, $instanceIp, $connection, $cache)
+    private function fetchServerStatus(Connection $websocketConnection, $instanceIp, $connection, &$cache)
     {
         $cacheKey = $instanceIp;
 
@@ -239,7 +239,7 @@ class MongoApplication implements Application
      * @param $cache
      * @return Generator
      */
-    private function fetchDbStatus(Connection $websocketConnection, $instanceIp, $dbName, $connection, $cache)
+    private function fetchDbStatus(Connection $websocketConnection, $instanceIp, $dbName, $connection, &$cache)
     {
         $cacheKey = $instanceIp . $dbName;
         $dbStatsQuery = new Query($dbName . '.$cmd', ['dbStats' => 1], null, 0, 1);
@@ -262,7 +262,7 @@ class MongoApplication implements Application
      * @param array $cache
      * @return Generator
      */
-    private function fetchLog(Connection $websocketConnection, $instanceIp, $connection, $cache)
+    private function fetchLog(Connection $websocketConnection, $instanceIp, $connection, &$cache)
     {
         $cacheKey = $instanceIp;
 
