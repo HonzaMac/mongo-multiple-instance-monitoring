@@ -5,7 +5,7 @@ namespace MongoMonitoring\WebSocket;
 
 use Generator;
 use Icicle\Awaitable;
-use Icicle\Coroutine\Coroutine;
+use Icicle\Coroutine;
 use Icicle\Http\Message\Request;
 use Icicle\Http\Message\Response;
 use Icicle\Loop;
@@ -21,6 +21,7 @@ use MongoMonitoring\Websocket\Messages;
 class MongoApplication implements Application
 {
     const PERIODIC_CHECK_IN_SECONDS = 3;
+    const SERVER_CONNECTION_TIMEOUT_IN_SECONDS = 2;
     /**
      * @var array
      */
@@ -73,12 +74,12 @@ class MongoApplication implements Application
         while ($websocketConnection->isOpen()) {
             foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
                 foreach ($databases as $db) {
-                    yield (new Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection)))->wait();
+                    yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection)))->wait();
                 }
-                yield (new Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection)))->wait();
-                yield (new Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection)))->wait();
+                yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection)))->wait();
+                yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection)))->wait();
             }
-            yield \Icicle\Coroutine\sleep(self::PERIODIC_CHECK_IN_SECONDS);
+            yield Coroutine\sleep(self::PERIODIC_CHECK_IN_SECONDS);
 
         }
         foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
@@ -118,7 +119,7 @@ class MongoApplication implements Application
     {
         /** @var MongoConnection $connection */
         $connectionThenable = Awaitable\adapt($this->connectionFactory->create($host, $port, ['connectTimeoutMS' => 500, 'socketTimeoutMS' => 500]));
-        $connectionThenable->timeout(2, function () use ($connectionThenable, $instanceIp) {
+        $connectionThenable->timeout(self::SERVER_CONNECTION_TIMEOUT_IN_SECONDS, function () use ($connectionThenable, $instanceIp) {
             $connectionThenable->cancel();
         });
         $connectionThenable->then(function () use ($instanceIp) {
@@ -139,7 +140,7 @@ class MongoApplication implements Application
         $listDatabasesQuery = new Query('admin.$cmd', ['listDatabases' => 1], null, 0, 1);
         /** @var Reply $reply */
         $reply = (yield Awaitable\adapt($connection->send($listDatabasesQuery)));
-        $listDbs = current(iterator_to_array($reply->getIterator()));
+        $listDbs = current(iterator_to_array($reply));
         $initResponse = Messages\Init::create($instanceIp, $instanceIp, $listDbs);
         echo $instanceIp . ': getting list of databases' . PHP_EOL;
         yield $websocketConnection->send($initResponse);
@@ -158,7 +159,7 @@ class MongoApplication implements Application
         $query = new Query('admin.$cmd', ['buildInfo' => 1], null, 0, 1);
         $reply = (yield Awaitable\adapt($connection->send($query)));
         /** @var Reply $reply */
-        $response = current(iterator_to_array($reply->getIterator()));
+        $response = current(iterator_to_array($reply));
         echo $instanceIp . ': getting build-info' . PHP_EOL;
         yield $websocketConnection->send(Messages\BuildInfo::create($instanceIp, $response));
     }
@@ -174,7 +175,7 @@ class MongoApplication implements Application
         $hostInfoQuery = new Query('admin.$cmd', ['hostInfo' => 1], null, 0, 1);
         $hostInfoReply = (yield Awaitable\adapt($connection->send($hostInfoQuery)));
         /** @var Reply $hostInfoReply */
-        $hostInfo = current(iterator_to_array($hostInfoReply->getIterator()));
+        $hostInfo = current(iterator_to_array($hostInfoReply));
         echo $instanceIp . ': getting host info' . PHP_EOL;
         yield $websocketConnection->send(Messages\HostInfo::create($instanceIp, $hostInfo));
     }
@@ -192,7 +193,7 @@ class MongoApplication implements Application
         $serverStatusQuery = new Query('admin.$cmd', ['serverStatus' => 1], null, 0, 1);
         $serverStatusReply = (yield Awaitable\adapt($connection->send($serverStatusQuery)));
         /** @var Reply $serverStatusReply */
-        $response = current(iterator_to_array($serverStatusReply->getIterator()));
+        $response = current(iterator_to_array($serverStatusReply));
         $sum = md5(serialize($response));
         if ($sum !== @$this->cache[$cacheKey]) {
             $this->cache[$cacheKey] = $sum;
@@ -214,7 +215,7 @@ class MongoApplication implements Application
         $topQuery = new Query('admin.$cmd', ['top' => 1], null, 0, 1);
         $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
         /** @var Reply $topReply */
-        $top = current(iterator_to_array($topReply->getIterator()));
+        $top = current(iterator_to_array($topReply));
         echo $instanceIp . ': getting top' . PHP_EOL;
         yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
     }
@@ -232,7 +233,7 @@ class MongoApplication implements Application
         $dbStatsQuery = new Query($dbName . '.$cmd', ['dbStats' => 1], null, 0, 1);
         /** @var Reply $dbStatsReply */
         $dbStatsReply = (yield Awaitable\adapt($connection->send($dbStatsQuery)));
-        $dbStats = current(iterator_to_array($dbStatsReply->getIterator()));
+        $dbStats = current(iterator_to_array($dbStatsReply));
 
         $sum = md5(serialize($dbStats));
         if ($sum !== @$this->cache[$cacheKey]) {
@@ -257,7 +258,7 @@ class MongoApplication implements Application
         $query = new Query('admin.$cmd', ['getLog' => 'global'], null, 0, 1);
         $reply = (yield Awaitable\adapt($connection->send($query)));
         /** @var Reply $reply */
-        $response = current(iterator_to_array($reply->getIterator()));
+        $response = current(iterator_to_array($reply));
         $sum = md5(serialize($response));
         if ($sum !== @$this->cache[$cacheKey]) {
             $this->cache[$cacheKey] = $sum;
