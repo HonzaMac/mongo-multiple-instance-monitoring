@@ -72,9 +72,7 @@ class MongoApplication implements Application
         }
         while ($websocketConnection->isOpen()) {
             foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
-                foreach ($databases as $db) {
-                    yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection, $cache)));
-                }
+                yield $this->databasesCoroutines($websocketConnection, $databases, $instanceIp, $connection, $cache);
                 yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection, $cache)))->wait();
                 yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache)))->wait();
             }
@@ -229,6 +227,21 @@ class MongoApplication implements Application
         $top = current(iterator_to_array($topReply));
         $this->log($websocketConnection, $instanceIp, 'getting top');
         yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
+    }
+
+    /**
+     * @param Connection $websocketConnection
+     * @param array $databases
+     * @param string $instanceIp
+     * @param MongoConnection $connection
+     * @param array $cache
+     * @return Generator
+     */
+    private function databasesCoroutines(Connection $websocketConnection, $databases, $instanceIp, $connection, &$cache)
+    {
+        foreach ($databases as $db) {
+            yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection, $cache)));
+        }
     }
 
     /**
