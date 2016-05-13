@@ -20,6 +20,7 @@ use MongoMonitoring\Websocket\Messages;
 
 class MongoApplication implements Application
 {
+    const PERIODIC_CHECK_IN_SECONDS = 3;
     /**
      * @var array
      */
@@ -66,6 +67,7 @@ class MongoApplication implements Application
         foreach ($this->ipList as $instanceIp) {
             $generator = $this->fetch($websocketConnection, $instanceIp);
             list($connection, $databases) = (yield $generator);
+            /** @var MongoConnection $connection */
             $connectedInstances[] = [$connection, $instanceIp, $databases];
         }
         while ($websocketConnection->isOpen()) {
@@ -74,10 +76,15 @@ class MongoApplication implements Application
                     yield (new Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection)))->wait();
                 }
                 yield (new Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection)))->wait();
+                yield (new Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection)))->wait();
             }
-            yield \Icicle\Coroutine\sleep(3);
+            yield \Icicle\Coroutine\sleep(self::PERIODIC_CHECK_IN_SECONDS);
 
         }
+        foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
+            yield $connection->close();
+        }
+
     }
 
 
@@ -180,12 +187,20 @@ class MongoApplication implements Application
      */
     private function fetchServerStatus(Connection $websocketConnection, $instanceIp, $connection)
     {
+        $cacheKey = $instanceIp;
+
         $serverStatusQuery = new Query('admin.$cmd', ['serverStatus' => 1], null, 0, 1);
         $serverStatusReply = (yield Awaitable\adapt($connection->send($serverStatusQuery)));
         /** @var Reply $serverStatusReply */
-        $serverStatus = current(iterator_to_array($serverStatusReply->getIterator()));
-        echo $instanceIp . ': getting server stats' . PHP_EOL;
-        yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $serverStatus));
+        $response = current(iterator_to_array($serverStatusReply->getIterator()));
+        $sum = md5(serialize($response));
+        if ($sum !== @$this->cache[$cacheKey]) {
+            $this->cache[$cacheKey] = $sum;
+            echo $instanceIp . ': getting server stats' . PHP_EOL;
+            yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $response));
+        } else {
+            echo $instanceIp . ': no change in server stats' . PHP_EOL;
+        }
     }
 
     /**
