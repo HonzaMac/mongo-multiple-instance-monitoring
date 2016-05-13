@@ -19,8 +19,8 @@ export default class JsonDetail extends React.Component {
     render() {
         return (
             <span>
-                <a onClick={() => this.toggle()}>
-                    {this.props.title}
+                <a href="javascript:;" style={{float: 'right'}} class="btn btn-info" onClick={() => this.toggle()}>
+                    json
                 </a>
                 {this.state.visible ? this.renderCode() : null}
             </span>

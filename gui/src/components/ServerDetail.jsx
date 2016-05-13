@@ -27,13 +27,13 @@ export default class ServerDetail extends React.Component {
                          aria-expanded={index === 0}>
                         <div className="panel-body">
 
-                            <h4><JsonDetail title="Host info" code={JSON.stringify(hostInfo.length && hostInfo[0].data)} /></h4>
+                            <h4>Host info <JsonDetail title="Host info" code={JSON.stringify(hostInfo.length && hostInfo[0].data)} /></h4>
                             {this.renderHostInfo(hostInfo.length && hostInfo[0].data)}
 
-                            <h4><JsonDetail title="Build info" code={JSON.stringify(buildInfo.length && buildInfo[0].data)} /></h4>
+                            <h4>Build info <JsonDetail title="Build info" code={JSON.stringify(buildInfo.length && buildInfo[0].data)} /></h4>
                             {this.renderBuildInfo(buildInfo.length && buildInfo[0].data)}
 
-                            <h4><JsonDetail title="Databases" code={JSON.stringify(init.length && init[0].listDBs.databases)} /></h4>
+                            <h4>Databases <JsonDetail title="Databases" code={JSON.stringify(init.length && init[0].listDBs.databases)} /></h4>
                             {this.renderDatabases(init.length && init[0].listDBs.databases)}
                         </div>
                     </div>
