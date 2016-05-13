@@ -143,10 +143,21 @@ class MongoApplication implements Application
         $reply = (yield Awaitable\adapt($connection->send($listDatabasesQuery)));
         $listDbs = current(iterator_to_array($reply));
         $initResponse = Messages\Init::create($instanceIp, $instanceIp, $listDbs);
-        echo $instanceIp . ': getting list of databases' . PHP_EOL;
+        $this->log($websocketConnection, $instanceIp, 'getting list of databases');
         yield $websocketConnection->send($initResponse);
 
         yield $listDbs;
+    }
+
+    /**
+     * @param Connection $websocketConnection
+     * @param $instanceIp
+     * @param $message
+     */
+    private function log(Connection $websocketConnection, $instanceIp, $message)
+    {
+        $clientPrefix = $websocketConnection->getRemoteAddress() . ':' . $websocketConnection->getRemotePort();
+        echo $clientPrefix . ' => ' . $instanceIp . ': ' . $message . PHP_EOL;
     }
 
     /**
@@ -161,7 +172,7 @@ class MongoApplication implements Application
         $reply = (yield Awaitable\adapt($connection->send($query)));
         /** @var Reply $reply */
         $response = current(iterator_to_array($reply));
-        echo $instanceIp . ': getting build-info' . PHP_EOL;
+        $this->log($websocketConnection, $instanceIp, 'getting build-info');
         yield $websocketConnection->send(Messages\BuildInfo::create($instanceIp, $response));
     }
 
@@ -177,7 +188,7 @@ class MongoApplication implements Application
         $hostInfoReply = (yield Awaitable\adapt($connection->send($hostInfoQuery)));
         /** @var Reply $hostInfoReply */
         $hostInfo = current(iterator_to_array($hostInfoReply));
-        echo $instanceIp . ': getting host info' . PHP_EOL;
+        $this->log($websocketConnection, $instanceIp, 'getting host info');
         yield $websocketConnection->send(Messages\HostInfo::create($instanceIp, $hostInfo));
     }
 
@@ -199,7 +210,7 @@ class MongoApplication implements Application
         $sum = md5(serialize($response));
         if ($sum !== @$cache[$cacheKey]) {
             $cache[$cacheKey] = $sum;
-            echo $instanceIp . ': getting server stats' . PHP_EOL;
+            $this->log($websocketConnection, $instanceIp, 'getting server stats');
             yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $response));
         }
     }
@@ -216,7 +227,7 @@ class MongoApplication implements Application
         $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
         /** @var Reply $topReply */
         $top = current(iterator_to_array($topReply));
-        echo $instanceIp . ': getting top' . PHP_EOL;
+        $this->log($websocketConnection, $instanceIp, 'getting top');
         yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
     }
 
@@ -239,7 +250,7 @@ class MongoApplication implements Application
         $sum = md5(serialize($dbStats));
         if ($sum !== @$cache[$cacheKey]) {
             $cache[$cacheKey] = $sum;
-            echo $instanceIp . ': sending database stats for [' . $dbName . ']' . PHP_EOL;
+            $this->log($websocketConnection, $instanceIp, 'sending database stats for [' . $dbName . ']');
             yield $websocketConnection->send(Messages\DbStats::create($instanceIp, $dbStats));
         }
     }
@@ -263,7 +274,7 @@ class MongoApplication implements Application
         if ($sum !== @$cache[$cacheKey]) {
             $cache[$cacheKey] = $sum;
 
-            echo $instanceIp . ': getting log' . PHP_EOL;
+            $this->log($websocketConnection, $instanceIp, 'getting log');
             yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
         }
     }
