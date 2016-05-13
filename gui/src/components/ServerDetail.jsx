@@ -9,7 +9,7 @@ export default class ServerDetail extends React.Component {
         const {hostInfo, buildInfo, init, index, log, dbStats} = this.props;
 
         return (
-            <div className={Classname('col-md-6 col-xs-12', {clearfix: index % 2 === 0})}>
+            <div className={Classname('col-md-4 col-xs-12', {clearfix: index % 3 === 0})}>
                 <div className="panel panel-primary" id={`panel-${index}`}>
                     <div className="panel-heading" role="tab">
                         <h3 className="panel-title">
@@ -53,7 +53,7 @@ export default class ServerDetail extends React.Component {
                 <tbody>
                 <tr>
                     <td>versionSignature</td>
-                    <td>{data.extra.versionSignature}</td>
+                    <td>{data.os.name} {data.os.version} {data.os.type}</td>
                 </tr>
                 <tr>
                     <td>hostname</td>
@@ -96,9 +96,9 @@ export default class ServerDetail extends React.Component {
 
         return (
             <ul className="list-group">
-                {data.sort((a, b) => a.name > b.name).map((db) => {
+                {data.sort((a, b) => a.name > b.name).map((db, dbIndex) => {
                     return (
-                        <li className="list-group-item">
+                        <li key={`detail-db-${dbIndex}`} className="list-group-item">
                             <strong>{db.name}</strong>
                             {stats && stats.db == db.name ? renderStats(stats) : null}
                         </li>
@@ -112,8 +112,8 @@ export default class ServerDetail extends React.Component {
         if (data) {
             return (
                 <div style={{color: '#0c0', backgroundColor: '#222', maxHeight: '400px', overflow: 'scroll'}}>
-                    {Object.keys(data).map((rowNumber) => Number(rowNumber)).reverse().map((key) => {
-                        return <p>{data[key]}</p>
+                    {Object.keys(data).map((rowNumber) => Number(rowNumber)).reverse().map((key, rowKey) => {
+                        return <p key={`log-row-${rowKey}`}>{data[key]}</p>
                     })}
                 </div>
             )

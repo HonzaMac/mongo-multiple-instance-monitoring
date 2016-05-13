@@ -15,6 +15,7 @@ export default class Servers extends React.Component {
                 {data.init.map((server, serverIndex) => {
                     return (
                         <ServerDetail
+                            key={`server-detail-${serverIndex}`}
                             url={server.url}
                             hostId={server.hostId}
                             init={init.filter(i => i.hostId === server.hostId)}
