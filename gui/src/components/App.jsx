@@ -103,17 +103,21 @@ export default class App extends React.Component {
         };
 
         this.socket.onmessage = (evt) => {
-            const message = JSON.parse(evt.data);
-            const {type} = message;
+            try {
+                const message = JSON.parse(evt.data);
+                const {type} = message;
 
-            if (typeof this.state.data[type] !== 'undefined') {
-                let values = this.state.data[type];
-                values.push(message);
+                if (typeof this.state.data[type] !== 'undefined') {
+                    let values = this.state.data[type];
+                    values.push(message);
 
-                this.setState({
-                    ...this.state.data,
-                    [type]: values
-                })
+                    this.setState({
+                        ...this.state.data,
+                        [type]: values
+                    })
+                }
+            } catch(e) {
+                // Empty data from server
             }
 
         };

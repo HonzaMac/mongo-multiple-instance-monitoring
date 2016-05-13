@@ -53,15 +53,15 @@ export default class ServerDetail extends React.Component {
                 <tbody>
                 <tr>
                     <td>versionSignature</td>
-                    <td>{data.os.name} {data.os.version} {data.os.type}</td>
+                    {data.os ? <td>{data.os.name} {data.os.version} {data.os.type}</td> : <td></td>}
                 </tr>
                 <tr>
                     <td>hostname</td>
-                    <td>{data.system.hostname}</td>
+                    {data.system ? <td>{data.system.hostname}</td> : <td></td>}
                 </tr>
                 <tr>
                     <td>memSizeMB</td>
-                    <td>{data.system.memSizeMB}</td>
+                    {data.system ? <td>{data.system.memSizeMB}</td> : <td></td>}
                 </tr>
                 </tbody>
             </table>
