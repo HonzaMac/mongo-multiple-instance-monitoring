@@ -64,17 +64,41 @@ class MongoApplication implements Application
     {
         $connectedInstances = [];
         $cache = [];
+        $coroutines = [];
         foreach ($this->ipList as $instanceIp) {
-            $generator = $this->fetch($websocketConnection, $instanceIp, $cache);
-            list($connection, $databases) = (yield $generator);
-            /** @var MongoConnection $connection */
-            $connectedInstances[] = [$connection, $instanceIp, $databases];
+            $coroutine = new Coroutine\Coroutine($this->fetch($websocketConnection, $instanceIp, $cache));
+            $awaitable = $coroutine->then(null, function () {
+                echo 'CANCELLED';
+
+                return null;
+            });
+            $coroutines[] = $awaitable;
         }
+        $connectedInstances = (yield Awaitable\map(function ($response) use ($connectedInstances) {
+            if ($response) {
+                list($connection, $instanceIp, $databases) = $response;
+
+                return [$connection, $instanceIp, $databases];
+            }
+        }, $coroutines));
+
+        var_dump($connectedInstances);
+//        foreach ($this->ipList as $instanceIp) {
+//            $generator = $this->fetch($websocketConnection, $instanceIp, $cache);
+//            list($connection, $databases) = (yield $generator);
+//            /** @var MongoConnection $connection */
+//            $connectedInstances[] = [$connection, $instanceIp, $databases];
+//        }
         while ($websocketConnection->isOpen()) {
-            foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
-                yield $this->databasesCoroutines($websocketConnection, $databases, $instanceIp, $connection, $cache);
-                yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection, $cache)))->wait();
-                yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache)))->wait();
+            foreach ($connectedInstances as $awaitable) {
+                $var = (yield $awaitable);
+                if ($var) {
+                    list($connection, $instanceIp, $databases) = $var;
+                    echo 'going throw ... ';
+                    yield $this->databasesCoroutines($websocketConnection, $databases, $instanceIp, $connection, $cache);
+                    yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection, $cache)))->wait();
+                    yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache)))->wait();
+                }
             }
             yield Coroutine\sleep(self::PERIODIC_CHECK_IN_SECONDS);
 
@@ -102,10 +126,10 @@ class MongoApplication implements Application
         yield $this->fetchBuildInfo($websocketConnection, $instanceIp, $connection);
         yield $this->fetchHostInfo($websocketConnection, $instanceIp, $connection);
         yield $this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache);
-        yield $this->fetchTop($websocketConnection, $instanceIp, $connection);
+//        yield $this->fetchTop($websocketConnection, $instanceIp, $connection);
 
         $databases = $listDbs['databases'];
-        yield [$connection, $databases];
+        yield [$connection, $instanceIp, $databases];
     }
 
     /**
@@ -119,7 +143,7 @@ class MongoApplication implements Application
         /** @var MongoConnection $connection */
         $connectionThenable = Awaitable\adapt($this->connectionFactory->create($host, $port, ['connectTimeoutMS' => 500, 'socketTimeoutMS' => 500]));
         $connectionThenable->timeout(self::SERVER_CONNECTION_TIMEOUT_IN_SECONDS, function () use ($connectionThenable, $instanceIp) {
-            $connectionThenable->cancel();
+            return $connectionThenable->cancel();
         });
         $connectionThenable->then(function () use ($instanceIp) {
             echo $instanceIp . ' connected' . PHP_EOL;
@@ -215,22 +239,6 @@ class MongoApplication implements Application
 
     /**
      * @param Connection $websocketConnection
-     * @param string $instanceIp
-     * @param MongoConnection $connection
-     * @return Generator
-     */
-    private function fetchTop(Connection $websocketConnection, $instanceIp, $connection)
-    {
-        $topQuery = new Query('admin.$cmd', ['top' => 1], null, 0, 1);
-        $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
-        /** @var Reply $topReply */
-        $top = current(iterator_to_array($topReply));
-        $this->log($websocketConnection, $instanceIp, 'getting top');
-        yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
-    }
-
-    /**
-     * @param Connection $websocketConnection
      * @param array $databases
      * @param string $instanceIp
      * @param MongoConnection $connection
@@ -290,5 +298,21 @@ class MongoApplication implements Application
             $this->log($websocketConnection, $instanceIp, 'getting log');
             yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
         }
+    }
+
+    /**
+     * @param Connection $websocketConnection
+     * @param string $instanceIp
+     * @param MongoConnection $connection
+     * @return Generator
+     */
+    private function fetchTop(Connection $websocketConnection, $instanceIp, $connection)
+    {
+        $topQuery = new Query('admin.$cmd', ['top' => 1], null, 0, 1);
+        $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
+        /** @var Reply $topReply */
+        $top = current(iterator_to_array($topReply));
+        $this->log($websocketConnection, $instanceIp, 'getting top');
+        yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
     }
 }
