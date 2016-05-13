@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpStepFilterConfiguration">
+    <option name="skippedFunctions">
+      <list>
+        <option value="Icicle\Loop\SelectLoop-&gt;dispatch" />
+        <option value="Icicle\Loop\AbstractLoop-&gt;tick" />
+        <option value="Icicle\Loop\AbstractLoop-&gt;run" />
+        <option value="React\Promise\resolve" />
+        <option value="React\Promise\FulfilledPromise-&gt;done" />
+        <option value="Icicle\Coroutine\Coroutine-&gt;next" />
+        <option value="Icicle\Coroutine\Coroutine-&gt;__construct" />
+        <option value="Icicle\Awaitable\Future-&gt;done" />
+        <option value="Icicle\Coroutine\Coroutine-&gt;Icicle\Coroutine\{closure}" />
+        <option value="Icicle\Awaitable\Internal\FulfilledAwaitable-&gt;done" />
+        <option value="Icicle\Awaitable\Future-&gt;resolve" />
+        <option value="Icicle\Loop\Structures\ObjectStorage-&gt;count" />
+        <option value="React\Promise\Promise-&gt;done" />
+      </list>
+    </option>
+  </component>
+</project>
