@@ -74,7 +74,7 @@ class MongoApplication implements Application
         while ($websocketConnection->isOpen()) {
             foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
                 foreach ($databases as $db) {
-                    yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection)))->wait();
+                    yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection)));
                 }
                 yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection)))->wait();
                 yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection)))->wait();
