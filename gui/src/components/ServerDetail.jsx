@@ -33,7 +33,7 @@ export default class ServerDetail extends React.Component {
                             {this.renderBuildInfo(buildInfo.length && buildInfo[buildInfo.length - 1].data)}
 
                             <h4>Databases <JsonDetail title="Databases" code={JSON.stringify(init.length && init[init.length - 1].listDBs.databases)} /></h4>
-                            {this.renderDatabases(init.length && init[init.length - 1].listDBs.databases, dbStats.length && dbStats[dbStats.length - 1].data)}
+                            {this.renderDatabases(init.length && init[init.length - 1].listDBs.databases, dbStats.length && dbStats)}
 
                             <h4>Logs</h4>
                             {this.renderLogMessages(log && log.length && log[log.length - 1].data)}
@@ -97,10 +97,12 @@ export default class ServerDetail extends React.Component {
         return (
             <ul className="list-group">
                 {data.sort((a, b) => a.name > b.name).map((db, dbIndex) => {
+                    const dbStats = stats && stats.find((s) => s.data.db == db.name);
+
                     return (
                         <li key={`detail-db-${dbIndex}`} className="list-group-item">
                             <strong>{db.name}</strong>
-                            {stats && stats.db == db.name ? renderStats(stats) : null}
+                            {dbStats ? renderStats(dbStats.data) : null}
                         </li>
                     )
                 })}
