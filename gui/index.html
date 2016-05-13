@@ -1,120 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Monitoring dashboard for multiple mongodb instances</title>
-    <script type="text/javascript">
-        var urlParams;
-        (window.onpopstate = function () {
-            var match,
-                    pl = /\+/g,  // Regex for replacing addition symbol with a space
-                    search = /([^&=]+)=?([^&]*)/g,
-                    decode = function (s) {
-                        return decodeURIComponent(s.replace(pl, " "));
-                    },
-                    query = window.location.search.substring(1);
 
-            urlParams = {
-                host: 'localhost',
-                port: '9900'
-            };
-            while (match = search.exec(query))
-                urlParams[decode(match[1])] = decode(match[2]);
-        })();
-
-
-        function WebSocketTest(host, port) {
-            if ("WebSocket" in window) {
-
-                // Let us open a web socket
-                var url = "ws://" + host + ":" + port + "/echo";
-                var ws = new WebSocket(url);
-
-                ws.onopen = function () {
-                    // Web Socket is connected, send data using send()
-                };
-
-                ws.onmessage = function (evt) {
-                    var received_msg = JSON.parse(evt.data);
-                    var servers = document.getElementById('servers');
-                    console.log(received_msg);
-                    switch (received_msg.type) {
-                        case 'init':
-                            var existingBox = document.getElementById(received_msg.hostId);
-                            if (existingBox) {
-                                newDiv = existingBox;
-                            } else {
-                                var newDiv = document.createElement('div');
-                                newDiv.id = received_msg.hostId;
-                                newDiv.className = 'box';
-                                var newContent = document.createTextNode(received_msg.url)
-                                newDiv.appendChild(newContent);
-                            }
-                            servers.appendChild(newDiv);
-                            break;
-
-
-                        case 'serverStatus':
-                            var hostBox = document.getElementById(received_msg.hostId);
-                            if (hostBox) {
-                                hostBox.innerHTML += JSON.stringify(received_msg.data) + "<br>";
-                            }
-                            break;
-                        case 'size':
-                            var hostBox = document.getElementById(received_msg.hostId);
-                            if (hostBox) {
-                                hostBox.innerHTML += received_msg.dbname + ': ' + received_msg.size + "<br>";
-                            }
-                            break;
-                        case 'error':
-                            var hostBox = document.getElementById(received_msg.hostId);
-                            if (hostBox) {
-                                hostBox.innerHTML = "An error occured: " + received_msg.code + ": " + received_msg.message + "<br>";
-                            }
-                            break;
-                    }
-
-
-                };
-
-                ws.onerror = function (evt) {
-                    console.log(evt);
-                    document.getElementById('errors').innerHTML = "Error in Websocket occured. See console log for more info";
-                };
-
-                ws.onclose = function (evt) {
-                    console.log(evt);
-                    // websocket is closed.
-                    document.getElementById('errors').innerHTML = "Connection to <strong>" + url + "</strong> is closed."
-                            + "<br>" + "<a href=\"javascript:WebSocketTest('" + host + "', '" + port + "')\">Click to reconnect</a>";
-                };
-            }
-
-            else {
-                // The browser doesn't support WebSocket
-                alert("WebSocket NOT supported by your Browser!");
-            }
-        }
-
-    </script>
-    <script>
-        WebSocketTest(urlParams['host'], urlParams['port']);
-    </script>
-    <style>
-        .box {
-            display: block;
-            width: 350px;
-            border: 1px solid indianred;
-            float: left;
-            margin: 1em;
-            padding: 0.5em;
-        }
-    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 </head>
 <body>
 
-<div id="errors"></div>
-<div id="servers"></div>
-<div id="events"></div>
+<div id='app'></div>
+
+<script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script src="/static/bundle.js"></script>
+
 </body>
 </html>
