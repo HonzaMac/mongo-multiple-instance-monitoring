@@ -18,6 +18,7 @@
   "license": "",
   "homepage": "https://github.com/vasanthk/react-es6-webpack-boilerplate",
   "dependencies": {
+    "classname": "0.0.0",
     "equals": "^1.0.1",
     "install": "^0.6.1",
     "npm": "^3.8.5",

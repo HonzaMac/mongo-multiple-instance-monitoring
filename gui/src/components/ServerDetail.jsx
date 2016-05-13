@@ -1,35 +1,37 @@
 import React from 'react';
+import Classname from 'classname';
 
 export default class ServerDetail extends React.Component {
 
     render() {
-        const {hostInfo, buildInfo, init} = this.props;
+        const {hostInfo, buildInfo, init, index} = this.props;
 
-        const classes = `panel-collapse collapse ${this.props.index === 0 ? 'in' : ''}`;
         return (
-            <div className="panel panel-primary" id={`panel-${this.props.index}`} >
-                <div className="panel-heading" role="tab">
-                    <h3 className="panel-title">
-                        <a
-                            role="button"
-                            data-toggle="collapse"
-                            href={`#panel-collapse-${this.props.index}`}
-                            aria-controls={`panel-collapse-${this.props.index}`}
-                            aria-expanded={this.props.index === 0}>
-                            {this.props.url}
-                        </a>
-                    </h3>
-                </div>
-                <div id={`panel-collapse-${this.props.index}`} className={classes} aria-expanded={this.props.index === 0}>
-                    <div className="panel-body">
+            <div className={Classname('col-md-6 col-xs-12', {clearfix: index % 2 === 0})}>
+                <div className="panel panel-primary" id={`panel-${index}`} >
+                    <div className="panel-heading" role="tab">
+                        <h3 className="panel-title">
+                            <a
+                                role="button"
+                                data-toggle="collapse"
+                                href={`#panel-collapse-${index}`}
+                                aria-controls={`panel-collapse-${index}`}
+                                aria-expanded={index === 0}>
+                                {this.props.url}
+                            </a>
+                        </h3>
+                    </div>
+                    <div id={`panel-collapse-${index}`} className="panel-collapse collapse in" aria-expanded={index === 0}>
+                        <div className="panel-body">
 
-                        <h4>Host info</h4>
-                        {this.renderHostInfo(hostInfo.length && hostInfo[0].data)}
+                            <h4>Host info</h4>
+                            {this.renderHostInfo(hostInfo.length && hostInfo[0].data)}
 
-                        <h4>Build info</h4>
-                        {this.renderBuildInfo(buildInfo.length && buildInfo[0].data)}
+                            <h4>Build info</h4>
+                            {this.renderBuildInfo(buildInfo.length && buildInfo[0].data)}
 
-                        {this.renderDatabases(init.length && init[0].listDBs.databases)}
+                            {this.renderDatabases(init.length && init[0].listDBs.databases)}
+                        </div>
                     </div>
                 </div>
             </div>
