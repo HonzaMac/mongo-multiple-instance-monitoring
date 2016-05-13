@@ -20,6 +20,7 @@
   "dependencies": {
     "classname": "0.0.0",
     "equals": "^1.0.1",
+    "humanize": "0.0.9",
     "install": "^0.6.1",
     "npm": "^3.8.5",
     "react": "^15.0.2",

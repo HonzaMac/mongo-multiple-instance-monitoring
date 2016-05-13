@@ -1,5 +1,6 @@
 import React from 'react';
 import Classname from 'classname';
+import Humanize from 'humanize';
 
 import JsonDetail from './JsonDetail.jsx';
 
@@ -88,8 +89,8 @@ export default class ServerDetail extends React.Component {
               <p>
                   Collections <span className="badge pull-right">{stats.collections}</span><br />
                   Indexes <span className="badge pull-right">{stats.indexes}</span><br />
-                  Index sizes <span className="badge pull-right">{stats.indexSize}</span><br />
-                  File size <span className="badge pull-right">{stats.fileSize}</span>
+                  Index sizes <span className="badge pull-right">{Humanize.filesize(stats.indexSize)}</span><br />
+                  File size <span className="badge pull-right">{Humanize.filesize(stats.fileSize)}</span>
               </p>
           )
         };
