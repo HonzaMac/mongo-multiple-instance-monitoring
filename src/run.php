@@ -10,6 +10,7 @@ use MongoMonitoring\WebSocket\Handler;
 use Nette\Neon\Neon;
 
 ini_set('xdebug.max_nesting_level', PHP_INT_MAX);
+ini_set('mongo.long_as_object', 1);
 
 
 $defaultPort = 9900;
