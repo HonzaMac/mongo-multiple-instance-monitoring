@@ -20,7 +20,7 @@ use MongoMonitoring\Websocket\Messages;
 
 class MongoApplication implements Application
 {
-    const PERIODIC_CHECK_IN_SECONDS = 3;
+    const PERIODIC_CHECK_IN_SECONDS = 10;
     const SERVER_CONNECTION_TIMEOUT_IN_SECONDS = 2;
     /**
      * @var array
@@ -199,8 +199,6 @@ class MongoApplication implements Application
             $this->cache[$cacheKey] = $sum;
             echo $instanceIp . ': getting server stats' . PHP_EOL;
             yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $response));
-        } else {
-            echo $instanceIp . ': no change in server stats' . PHP_EOL;
         }
     }
 
@@ -240,8 +238,6 @@ class MongoApplication implements Application
             $this->cache[$cacheKey] = $sum;
             echo $instanceIp . ': sending database stats for [' . $dbName . ']' . PHP_EOL;
             yield $websocketConnection->send(Messages\DbStats::create($instanceIp, $dbStats));
-        } else {
-            echo $instanceIp . ': no change database stats' . PHP_EOL;
         }
     }
 
@@ -265,8 +261,6 @@ class MongoApplication implements Application
 
             echo $instanceIp . ': getting log' . PHP_EOL;
             yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
-        } else {
-            echo $instanceIp . ': no change in log' . PHP_EOL;
         }
     }
 }
