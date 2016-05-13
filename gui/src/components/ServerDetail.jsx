@@ -86,10 +86,10 @@ export default class ServerDetail extends React.Component {
         const renderStats = (stats) => {
           return (
               <p>
-                  Collections <span className="badge">{stats.collections}</span><br />
-                  Indexes <span className="badge">{stats.indexes}</span><br />
-                  Index sizes <span className="badge">{stats.indexSize}</span><br />
-                  File size <span className="badge">{stats.fileSize}</span>
+                  Collections <span className="badge pull-right">{stats.collections}</span><br />
+                  Indexes <span className="badge pull-right">{stats.indexes}</span><br />
+                  Index sizes <span className="badge pull-right">{stats.indexSize}</span><br />
+                  File size <span className="badge pull-right">{stats.fileSize}</span>
               </p>
           )
         };
