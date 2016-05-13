@@ -20,7 +20,7 @@ use MongoMonitoring\Websocket\Messages;
 
 class MongoApplication implements Application
 {
-    const PERIODIC_CHECK_IN_SECONDS = 3;
+    const PERIODIC_CHECK_IN_SECONDS = 10;
     const SERVER_CONNECTION_TIMEOUT_IN_SECONDS = 2;
     /**
      * @var array
@@ -30,8 +30,6 @@ class MongoApplication implements Application
      * @var ConnectionFactory
      */
     private $connectionFactory;
-    /** @var array */
-    private $cache = [];
 
     public function __construct(ConnectionFactory $factory, $ipList)
     {
@@ -65,8 +63,9 @@ class MongoApplication implements Application
     public function onConnection(Connection $websocketConnection, Response $response, Request $request)
     {
         $connectedInstances = [];
+        $cache = [];
         foreach ($this->ipList as $instanceIp) {
-            $generator = $this->fetch($websocketConnection, $instanceIp);
+            $generator = $this->fetch($websocketConnection, $instanceIp, $cache);
             list($connection, $databases) = (yield $generator);
             /** @var MongoConnection $connection */
             $connectedInstances[] = [$connection, $instanceIp, $databases];
@@ -74,10 +73,10 @@ class MongoApplication implements Application
         while ($websocketConnection->isOpen()) {
             foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
                 foreach ($databases as $db) {
-                    yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection)));
+                    yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection, $cache)));
                 }
-                yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection)))->wait();
-                yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection)))->wait();
+                yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection, $cache)))->wait();
+                yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache)))->wait();
             }
             yield Coroutine\sleep(self::PERIODIC_CHECK_IN_SECONDS);
 
@@ -90,11 +89,13 @@ class MongoApplication implements Application
 
 
     /**
-     * @param Connection $connection
+     * @param Connection $websocketConnection
      * @param string $instanceIp
+     * @param $cache
      * @return Generator
+     * @internal param Connection $connection
      */
-    public function fetch(Connection $websocketConnection, $instanceIp)
+    public function fetch(Connection $websocketConnection, $instanceIp, $cache)
     {
         list($host, $port) = explode(':', $instanceIp);
         $connection = (yield $this->connectToHost($instanceIp, $host, $port));
@@ -102,7 +103,7 @@ class MongoApplication implements Application
 
         yield $this->fetchBuildInfo($websocketConnection, $instanceIp, $connection);
         yield $this->fetchHostInfo($websocketConnection, $instanceIp, $connection);
-        yield $this->fetchServerStatus($websocketConnection, $instanceIp, $connection);
+        yield $this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache);
         yield $this->fetchTop($websocketConnection, $instanceIp, $connection);
 
         $databases = $listDbs['databases'];
@@ -184,9 +185,10 @@ class MongoApplication implements Application
      * @param Connection $websocketConnection
      * @param string $instanceIp
      * @param MongoConnection $connection
+     * @param array $cache
      * @return Generator
      */
-    private function fetchServerStatus(Connection $websocketConnection, $instanceIp, $connection)
+    private function fetchServerStatus(Connection $websocketConnection, $instanceIp, $connection, $cache)
     {
         $cacheKey = $instanceIp;
 
@@ -195,12 +197,10 @@ class MongoApplication implements Application
         /** @var Reply $serverStatusReply */
         $response = current(iterator_to_array($serverStatusReply));
         $sum = md5(serialize($response));
-        if ($sum !== @$this->cache[$cacheKey]) {
-            $this->cache[$cacheKey] = $sum;
+        if ($sum !== @$cache[$cacheKey]) {
+            $cache[$cacheKey] = $sum;
             echo $instanceIp . ': getting server stats' . PHP_EOL;
             yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $response));
-        } else {
-            echo $instanceIp . ': no change in server stats' . PHP_EOL;
         }
     }
 
@@ -225,9 +225,10 @@ class MongoApplication implements Application
      * @param string $instanceIp
      * @param string $dbName
      * @param MongoConnection $connection
+     * @param $cache
      * @return Generator
      */
-    private function fetchDbStatus(Connection $websocketConnection, $instanceIp, $dbName, $connection)
+    private function fetchDbStatus(Connection $websocketConnection, $instanceIp, $dbName, $connection, $cache)
     {
         $cacheKey = $instanceIp . $dbName;
         $dbStatsQuery = new Query($dbName . '.$cmd', ['dbStats' => 1], null, 0, 1);
@@ -236,12 +237,10 @@ class MongoApplication implements Application
         $dbStats = current(iterator_to_array($dbStatsReply));
 
         $sum = md5(serialize($dbStats));
-        if ($sum !== @$this->cache[$cacheKey]) {
-            $this->cache[$cacheKey] = $sum;
+        if ($sum !== @$cache[$cacheKey]) {
+            $cache[$cacheKey] = $sum;
             echo $instanceIp . ': sending database stats for [' . $dbName . ']' . PHP_EOL;
             yield $websocketConnection->send(Messages\DbStats::create($instanceIp, $dbStats));
-        } else {
-            echo $instanceIp . ': no change database stats' . PHP_EOL;
         }
     }
 
@@ -249,9 +248,10 @@ class MongoApplication implements Application
      * @param Connection $websocketConnection
      * @param string $instanceIp
      * @param MongoConnection $connection
+     * @param array $cache
      * @return Generator
      */
-    private function fetchLog(Connection $websocketConnection, $instanceIp, $connection)
+    private function fetchLog(Connection $websocketConnection, $instanceIp, $connection, $cache)
     {
         $cacheKey = $instanceIp;
 
@@ -260,13 +260,11 @@ class MongoApplication implements Application
         /** @var Reply $reply */
         $response = current(iterator_to_array($reply));
         $sum = md5(serialize($response));
-        if ($sum !== @$this->cache[$cacheKey]) {
-            $this->cache[$cacheKey] = $sum;
+        if ($sum !== @$cache[$cacheKey]) {
+            $cache[$cacheKey] = $sum;
 
             echo $instanceIp . ': getting log' . PHP_EOL;
             yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
-        } else {
-            echo $instanceIp . ': no change in log' . PHP_EOL;
         }
     }
 }
