@@ -34,7 +34,8 @@ export default class App extends React.Component {
                 serverStatus: [],
                 top: [],
                 dbStats: [],
-                buildInfo: []
+                buildInfo: [],
+                log: []
             },
             connected: false
         };
