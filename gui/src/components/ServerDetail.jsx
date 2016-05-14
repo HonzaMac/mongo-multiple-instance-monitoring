@@ -6,6 +6,17 @@ import JsonDetail from './JsonDetail.jsx';
 
 export default class ServerDetail extends React.Component {
 
+    static propTypes = {
+        hostInfo: React.PropTypes.object,
+        buildInfo: React.PropTypes.object,
+        init: React.PropTypes.object,
+        log: React.PropTypes.object,
+        dbStats: React.PropTypes.object,
+        url: React.PropTypes.string,
+        hostId: React.PropTypes.string,
+        index: React.PropTypes.number
+    };
+
     constructor(props) {
         super(props);
 
@@ -13,6 +24,11 @@ export default class ServerDetail extends React.Component {
           details: false
         };
 
+        /**
+         * Used to display last update of server detail
+         *
+         * @type {string}
+         */
         this.lastUpdate = (new Date()).toLocaleTimeString();
     }
 
@@ -42,6 +58,13 @@ export default class ServerDetail extends React.Component {
         return shouldUpdate || this.state.details !== nextState.details;
     }
 
+    /**
+     * Used for compare prevProps and nextProps if any db have updated data in componentShouldUpdate
+     *
+     * @param {object} prev - prev props
+     * @param {object} next - next props
+     * @returns {boolean}
+     */
     static compareDbStatsFreshness(prev, next) {
 
         /**
@@ -167,7 +190,7 @@ export default class ServerDetail extends React.Component {
     renderLogMessages(data) {
         if (typeof data !== 'undefined' && Object.keys(data).length) {
             return (
-                <div style={{color: '#0c0', backgroundColor: '#222', maxHeight: '400px', overflow: 'scroll'}}>
+                <div className="terminal">
                     {Object.keys(data).reverse().map((key, rowKey) => {
                         return <p key={`log-row-${rowKey}`}>{data[key]}</p>
                     })}

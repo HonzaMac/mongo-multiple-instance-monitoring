@@ -2,11 +2,15 @@ import React from 'react';
 
 export default class JsonDetail extends React.Component {
 
+    static propTypes = {
+        code: React.PropTypes.string
+    };
+
     constructor(props) {
         super(props);
 
         this.state = {
-            visible: false
+            visible: false // in default code isn't visible
         };
     }
 

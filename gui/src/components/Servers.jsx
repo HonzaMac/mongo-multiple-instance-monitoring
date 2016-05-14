@@ -4,7 +4,7 @@ import ServerDetail from './ServerDetail.jsx';
 export default class Servers extends React.Component {
 
     static propTypes = {
-
+        data: React.PropTypes.object
     };
 
     render() {

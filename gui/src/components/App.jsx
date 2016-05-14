@@ -11,7 +11,11 @@ import Servers from './Servers.jsx';
 
 
 export default class App extends React.Component {
-    
+
+    static propTypes = {
+        websocketUrl: React.PropTypes.string.isRequired
+    };
+
     constructor(props) {
         super(props);
         
@@ -94,7 +98,16 @@ export default class App extends React.Component {
     
     initWebsocket() {
 
+        /**
+         * Create new websocket connection
+         *
+         * @type {WebSocket}
+         */
         this.socket = new WebSocket(`ws://${this.props.websocketUrl}/echo`);
+
+        /**
+         * Set default state
+         */
         this.setState(App.getInitialState());
 
         this.socket.onopen = () => {
@@ -103,9 +116,9 @@ export default class App extends React.Component {
             });
         };
 
-        this.socket.onmessage = (evt) => {
+        this.socket.onmessage = (event) => {
             try {
-                const message = JSON.parse(evt.data);
+                const message = JSON.parse(event.data);
                 const {type} = message;
 
                 if (typeof this.state.data[type] !== 'undefined') {
@@ -179,7 +192,7 @@ export default class App extends React.Component {
             });
         };
 
-        this.socket.onclose = (evt) => {
+        this.socket.onclose = (event) => {
             this.stopWebsocket();
         };
     }
