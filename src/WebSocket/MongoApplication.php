@@ -91,7 +91,6 @@ class MongoApplication implements Application
      * @param string $instanceIp
      * @param $cache
      * @return Generator
-     * @internal param Connection $connection
      */
     public function fetch(Connection $websocketConnection, $instanceIp, &$cache)
     {

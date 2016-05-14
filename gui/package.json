@@ -14,8 +14,8 @@
     "babel",
     "webpack"
   ],
-  "author": "",
-  "license": "",
+  "author": "Bc. Jan Machala",
+  "license": "MIT",
   "homepage": "https://github.com/vasanthk/react-es6-webpack-boilerplate",
   "dependencies": {
     "classname": "0.0.0",
