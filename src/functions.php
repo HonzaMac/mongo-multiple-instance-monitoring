@@ -23,8 +23,8 @@ function command(MongoDB $mongoDb, $mongoCode)
  * @param string $path
  * @return null|string
  */
-function loadFile($path){
-    if (file_exists($path)){
+function loadFile($path) {
+    if (file_exists($path)) {
         return file_get_contents($path);
     }
     error_log('File at path ' . $path . ' does not exists.', LOG_INFO);

@@ -17,10 +17,10 @@ $defaultPort = 9900;
 $configPath = 'config.neon';
 $fileContent = loadFile($configPath);
 if (null === $fileContent) {
-    $fileContent = loadFile('../'. $configPath);
+    $fileContent = loadFile('../' . $configPath);
 }
 $config = Neon::decode($fileContent);
-$port = isset($config['server']['port'])?$config['server']['port']: $defaultPort;
+$port = isset($config['server']['port']) ? $config['server']['port'] : $defaultPort;
 
 
 $loop = Loop\loop();

@@ -11,7 +11,7 @@ class Log extends Response
     /**
      * @param string $hostId
      * @param array $logs
-     * @return BuildInfo
+     * @return Log
      */
     public static function create($hostId, $logs)
     {

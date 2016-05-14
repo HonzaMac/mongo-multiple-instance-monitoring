@@ -7,6 +7,9 @@ namespace MongoMonitoring\WebSocket\Messages;
 class Top extends Response
 {
 
+    /**
+     * @param string $hostId
+     */
     public static function create($hostId, $top)
     {
         $serverMessage = (new self);
