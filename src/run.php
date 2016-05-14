@@ -26,7 +26,7 @@ $port = isset($config['server']['port']) ? $config['server']['port'] : $defaultP
 $loop = Loop\loop();
 $server = new Server(new Handler(new ReactLoop($loop), $config['hosts']));
 $server->listen($port);
-echo 'Websocket server is listenning on port ' . $port . PHP_EOL;
+echo 'Websocket server is listening on port ' . $port . PHP_EOL;
 
 $loop->run();
 
