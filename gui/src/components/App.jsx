@@ -37,6 +37,7 @@ export default class App extends React.Component {
                 buildInfo: {},
                 log: {}
             },
+            detailedView: true,
             connected: false
         };
     }
@@ -53,7 +54,8 @@ export default class App extends React.Component {
             <div className="container">
                 {this.state.error ? <div className="alert alert-danger" role="alert"><p>{this.state.error}</p></div> : null}
                 {this.renderControlButtons()}
-                <Servers data={this.state.data} />
+                {this.renderViewControlButtons()}
+                <Servers data={this.state.data} details={this.state.detailedView} />
             </div>
         )
     }
@@ -78,6 +80,17 @@ export default class App extends React.Component {
             )
         }
     }
+
+    renderViewControlButtons() {
+        return (
+            <div className="row">
+                <p>
+                    <button onClick={() => this.setState({detailedView: ! this.state.detailedView})} className="btn btn-default">{this.state.detailedView ? 'Without details' : 'With details'}</button>
+                </p>
+            </div>
+        )
+    }
+
     
     stopWebsocket() {
         /**
@@ -141,6 +154,7 @@ export default class App extends React.Component {
         };
 
         this.socket.onerror = (event) => {
+            console.error(event);
             let reason = '';
 
             if (event.code == 1000)

@@ -1,7 +1,6 @@
 import React from 'react';
 import Classname from 'classname';
 import Humanize from 'humanize';
-import shallowCompare from 'react-addons-shallow-compare';
 
 import JsonDetail from './JsonDetail.jsx';
 
@@ -25,7 +24,8 @@ export default class ServerDetail extends React.Component {
                 ! prev.log && typeof next.log !== 'undefined' ||
                 ( typeof prev.log !== 'undefined' && prev.log.lastUpdate < next.log.lastUpdate) ||
                 ! prev.dbStats && typeof next.dbStats !== 'undefined' ||
-                ( typeof prev.dbStats !== 'undefined' && ServerDetail.compareDbStatsFreshness(prev.dbStats, next.dbStats));
+                ( typeof prev.dbStats !== 'undefined' && ServerDetail.compareDbStatsFreshness(prev.dbStats, next.dbStats)) ||
+                prev.details !== next.details;
     }
 
     static compareDbStatsFreshness(prev, next) {
@@ -46,7 +46,7 @@ export default class ServerDetail extends React.Component {
     }
 
     render() {
-        const {hostInfo, buildInfo, init, index, log, dbStats} = this.props;
+        const {hostInfo, buildInfo, init, index, log, dbStats, details} = this.props;
 
         return (
             <div className={Classname('col-md-4 col-xs-12', {clearfix: index % 3 === 0})}>
@@ -61,11 +61,11 @@ export default class ServerDetail extends React.Component {
                                 aria-expanded={index === 0}>
                                 {this.props.url}
                             </a>
-                            <small className="pull-right"><strong>Last update:</strong> {(new Date()).toLocaleTimeString()}</small>
+                            <small className="pull-right"><strong>Last render:</strong> {(new Date()).toLocaleTimeString()}</small>
                         </h3>
                     </div>
                     <div id={`panel-collapse-${index}`} className="panel-collapse collapse in" aria-expanded={index === 0}>
-                        <div className="panel-body">
+                        {details ? <div className="panel-body">
 
                             <h4>Host info <JsonDetail title="Host info" code={JSON.stringify(hostInfo && hostInfo.data)} /></h4>
                             {this.renderHostInfo(hostInfo && hostInfo.data)}
@@ -78,7 +78,14 @@ export default class ServerDetail extends React.Component {
 
                             <h4>Logs</h4>
                             {this.renderLogMessages(log && log.data)}
-                        </div>
+                        </div> : <div className="panel-body">
+
+                            <h4>Host info <JsonDetail title="Host info" code={JSON.stringify(hostInfo && hostInfo.data)} /></h4>
+                            {this.renderHostInfo(hostInfo && hostInfo.data)}
+
+                            <h4>Databases <JsonDetail title="Databases" code={JSON.stringify(init && init.listDBs.databases)} /></h4>
+                            <p>{init && init.listDBs.databases ? init.listDBs.databases.map((db) => db.name).join(', ') : null}</p>
+                        </div>}
                     </div>
                 </div>
             </div>
