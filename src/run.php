@@ -29,7 +29,7 @@ $config['hosts'] = array_merge(
 
 $loop = Loop\loop();
 $server = new Server(new Handler(new ReactLoop($loop), $config['hosts']));
-$server->listen($port, '0.0.0.0');
+$server->listen($port, $host);
 echo 'Websocket server is listening on port ' . $port . PHP_EOL;
 
 $loop->run();
