@@ -21,7 +21,8 @@ export default class ServerDetail extends React.Component {
         super(props);
 
         this.state = {
-          details: false
+            details: false,
+            updated: false
         };
 
         /**
