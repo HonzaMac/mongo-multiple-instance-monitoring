@@ -7,7 +7,8 @@ RUN pecl install mongo \
   && sed -i 's/safe_mode_allowed_env_vars = .*/safe_mode_allowed_env_vars = ""/' /etc/php5/cli/php.ini \
   && sed -i 's/;date\.timezone =.*/date.timezone = "UTC"/' /etc/php5/cli/php.ini \
   && rm -rf /tmp/* \
-  && php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/bin --filename=composer
+  && php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/bin --filename=composer \
+  && composer install --no-interaction
 
 ADD src /srv/src
 ADD vendor /srv/vendor
