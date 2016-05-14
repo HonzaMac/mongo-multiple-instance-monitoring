@@ -10,12 +10,13 @@ RUN pecl install mongo \
 
 
 ADD src /srv/src
-ADD config.neon /srv/config.neon
+COPY config.neon.default /srv/config.neon
 ADD composer.json /srv/composer.json
 ADD composer.lock /srv/composer.lock
 
 RUN  php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/bin --filename=composer \
   && cd /srv/ && composer install --no-interaction
+
 
 WORKDIR /srv/src
 EXPOSE 9000

@@ -21,7 +21,11 @@ if (null === $fileContent) {
 }
 $config = Neon::decode($fileContent);
 $port = isset($config['server']['port']) ? $config['server']['port'] : $defaultPort;
-
+$explodedHosts = explode(',', getenv('HOSTS'));
+$envHosts = (isset($explodedHosts[0]) && $explodedHosts[0] === '') ? [] : $explodedHosts;
+$config['hosts'] = array_merge(
+    $config['hosts'] === null ? [] : $config['hosts'],
+    $envHosts);
 
 $loop = Loop\loop();
 $server = new Server(new Handler(new ReactLoop($loop), $config['hosts']));
