@@ -13,7 +13,7 @@ if (! "WebSocket" in window) {
 
 	const query = window.location.search;
 	const host = /host=([a-z0-9-_\.@:]+)/ig.exec(query);
-	const port = /port=([\d]+)/ig.exec(query);
+	const port = /port=([\d]+)/g.exec(query);
 
 	const url = host && port ? host[1] + ':' + port[1] : 'localhost:9900';
 
@@ -24,4 +24,6 @@ if (! "WebSocket" in window) {
 		<App websocketUrl={url} />,
 		document.getElementById('app')
 	);
+} else {
+	console.error('Missing placeholder element with id "app" for application!');
 }
