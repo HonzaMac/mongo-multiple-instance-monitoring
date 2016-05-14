@@ -16,7 +16,7 @@ use Jmikola\React\MongoDB\Connection as MongoConnection;
 use Jmikola\React\MongoDB\ConnectionFactory;
 use Jmikola\React\MongoDB\Protocol\Query;
 use Jmikola\React\MongoDB\Protocol\Reply;
-use MongoMonitoring\Websocket\Messages;
+use MongoMonitoring\WebSocket\Messages;
 
 class MongoApplication implements Application
 {
