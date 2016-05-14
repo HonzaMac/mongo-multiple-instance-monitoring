@@ -29,13 +29,13 @@ export default class App extends React.Component {
         return {
             error: null,
             data: {
-                init: [],
-                hostInfo: [],
-                serverStatus: [],
-                top: [],
-                dbStats: [],
-                buildInfo: [],
-                log: []
+                init: {},
+                hostInfo: {},
+                serverStatus: {},
+                top: {},
+                dbStats: {},
+                buildInfo: {},
+                log: {}
             },
             connected: false
         };
@@ -53,7 +53,7 @@ export default class App extends React.Component {
             <div className="container">
                 {this.state.error ? <div className="alert alert-danger" role="alert"><p>{this.state.error}</p></div> : null}
                 {this.renderControlButtons()}
-                {this.state.data.init.length ? <Servers data={this.state.data} /> : null}
+                <Servers data={this.state.data} />
             </div>
         )
     }
@@ -109,7 +109,25 @@ export default class App extends React.Component {
 
                 if (typeof this.state.data[type] !== 'undefined') {
                     let values = this.state.data[type];
-                    values.push(message);
+
+                    /**
+                     * Set last modified time used for compare and rendering components
+                     *
+                     * @type {number}
+                     */
+                    message.lastUpdate = (new Date()).getMilliseconds();
+                    if (type === 'dbStats') {
+
+                        /**
+                         * dbStats have {dbName: dbStats, ...} structure
+                         */
+                        values[message.hostId] = {
+                            ...values[message.hostId],
+                            [message.data.db]: message
+                        };
+                    } else {
+                        values[message.hostId] = message;
+                    }
 
                     this.setState({
                         ...this.state.data,

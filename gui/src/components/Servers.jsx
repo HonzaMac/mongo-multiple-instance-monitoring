@@ -12,18 +12,20 @@ export default class Servers extends React.Component {
 
         return (
             <div className="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-                {data.init.map((server, serverIndex) => {
+                {Object.keys(data.init).map((hostId, serverIndex) => {
+                    const server = data.init[hostId];
+                    
                     return (
                         <ServerDetail
                             key={`server-detail-${serverIndex}`}
                             url={server.url}
                             hostId={server.hostId}
-                            init={init.filter(i => i.hostId === server.hostId)}
-                            dbStats={dbStats.filter(i => i.hostId === server.hostId)}
-                            serverStats={serverStatus.filter(i => i.hostId === server.hostId)}
-                            hostInfo={hostInfo.filter(i => i.hostId === server.hostId)}
-                            buildInfo={buildInfo.filter(i => i.hostId === server.hostId)}
-                            log={log.filter(i => i.hostId === server.hostId)}
+                            init={init[server.hostId]}
+                            dbStats={dbStats[server.hostId]}
+                            serverStats={serverStatus[server.hostId]}
+                            hostInfo={hostInfo[server.hostId]}
+                            buildInfo={buildInfo[server.hostId]}
+                            log={log[server.hostId]}
                             index={serverIndex}
                         />
                     )

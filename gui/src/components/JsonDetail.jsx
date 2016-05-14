@@ -30,9 +30,7 @@ export default class JsonDetail extends React.Component {
     renderCode() {
         return (
             <p>
-                <textarea rows="20" className="form-control">
-                    {this.props.code}
-                </textarea>
+                <textarea rows="20" className="form-control" defaultValue={this.props.code} />
             </p>
         )
     }
