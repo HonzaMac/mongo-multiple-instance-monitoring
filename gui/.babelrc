@@ -4,7 +4,6 @@
       "development": {
           "plugins": [
             "transform-runtime",
-            "transform-decorators-legacy",
             ["babel-plugin-transform-builtin-extend", {
                 "globals": ["Error"]
             }],
@@ -20,7 +19,6 @@
     "production": {
         "plugins": [
           "transform-runtime",
-          "transform-decorators-legacy",
           ["babel-plugin-transform-builtin-extend", {
               "globals": ["Error"]
           }]
