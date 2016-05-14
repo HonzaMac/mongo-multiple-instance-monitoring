@@ -90,7 +90,7 @@ export default class ServerDetail extends React.Component {
                             <h4>Databases <JsonDetail title="Databases" code={JSON.stringify(init && init.listDBs.databases)} /></h4>
                             {this.renderDatabases(init && init.listDBs.databases, dbStats)}
 
-                            <h4>Logs</h4>
+                            <h4>Logs <JsonDetail title="Databases" code={JSON.stringify(log && log.data)} /></h4>
                             {this.renderLogMessages(log && log.data)}
                         </div>}
                     </div>
