@@ -118,10 +118,10 @@ class MongoApplication implements Application
     {
         /** @var MongoConnection $connection */
         $connectionThenable = Awaitable\adapt($this->connectionFactory->create($host, $port, ['connectTimeoutMS' => 500, 'socketTimeoutMS' => 500]));
-        $connectionThenable->timeout(self::SERVER_CONNECTION_TIMEOUT_IN_SECONDS, function () use ($connectionThenable, $instanceIp) {
+        $connectionThenable->timeout(self::SERVER_CONNECTION_TIMEOUT_IN_SECONDS, function() use ($connectionThenable, $instanceIp) {
             $connectionThenable->cancel();
         });
-        $connectionThenable->then(function () use ($instanceIp) {
+        $connectionThenable->then(function() use ($instanceIp) {
             echo $instanceIp . ' connected' . PHP_EOL;
         });
 
