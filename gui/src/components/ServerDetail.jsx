@@ -6,6 +6,16 @@ import JsonDetail from './JsonDetail.jsx';
 
 export default class ServerDetail extends React.Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+          details: false
+        };
+
+        this.lastUpdate = (new Date()).toLocaleTimeString();
+    }
+
     /**
      * For huge data load this component must detect last updated items and by them do or not do rendering
      *
@@ -15,7 +25,7 @@ export default class ServerDetail extends React.Component {
      */
     shouldComponentUpdate(next, nextState) {
         const {props: prev} = this;
-        return ! prev.hostInfo && typeof next.hostInfo !== 'undefined' ||
+        const shouldUpdate = ! prev.hostInfo && typeof next.hostInfo !== 'undefined' ||
                 ( typeof prev.hostInfo !== 'undefined' && prev.hostInfo.lastUpdate < next.hostInfo.lastUpdate) ||
                 ! prev.buildInfo && typeof next.buildInfo !== 'undefined' ||
                 ( typeof prev.buildInfo !== 'undefined' && prev.buildInfo.lastUpdate < next.buildInfo.lastUpdate) ||
@@ -24,8 +34,12 @@ export default class ServerDetail extends React.Component {
                 ! prev.log && typeof next.log !== 'undefined' ||
                 ( typeof prev.log !== 'undefined' && prev.log.lastUpdate < next.log.lastUpdate) ||
                 ! prev.dbStats && typeof next.dbStats !== 'undefined' ||
-                ( typeof prev.dbStats !== 'undefined' && ServerDetail.compareDbStatsFreshness(prev.dbStats, next.dbStats)) ||
-                prev.details !== next.details;
+                ( typeof prev.dbStats !== 'undefined' && ServerDetail.compareDbStatsFreshness(prev.dbStats, next.dbStats));
+        if (shouldUpdate) {
+            this.lastUpdate = (new Date()).toLocaleTimeString();
+        }
+
+        return shouldUpdate || this.state.details !== nextState.details;
     }
 
     static compareDbStatsFreshness(prev, next) {
@@ -46,7 +60,7 @@ export default class ServerDetail extends React.Component {
     }
 
     render() {
-        const {hostInfo, buildInfo, init, index, log, dbStats, details} = this.props;
+        const {hostInfo, buildInfo, init, index, log, dbStats} = this.props;
 
         return (
             <div className={Classname('col-md-4 col-xs-12', {clearfix: index % 3 === 0})}>
@@ -54,22 +68,22 @@ export default class ServerDetail extends React.Component {
                     <div className="panel-heading" role="tab">
                         <h3 className="panel-title">
                             <a
+                                onClick={() => this.setState({details: ! this.state.details})}
                                 role="button"
-                                data-toggle="collapse"
-                                href={`#panel-collapse-${index}`}
-                                aria-controls={`panel-collapse-${index}`}
-                                aria-expanded={index === 0}>
+                                href="javascript:;">
                                 {this.props.url}
                             </a>
-                            <small className="pull-right"><strong>Last render:</strong> {(new Date()).toLocaleTimeString()}</small>
+                            <small className="pull-right"><strong>Last update:</strong> {this.lastUpdate}</small>
                         </h3>
                     </div>
-                    <div id={`panel-collapse-${index}`} className="panel-collapse collapse in" aria-expanded={index === 0}>
-                        {details ? <div className="panel-body">
+                    <div className="panel-body">
+                        <h4>Host info <JsonDetail title="Host info" code={JSON.stringify(hostInfo && hostInfo.data)} /></h4>
+                        {this.renderHostInfo(hostInfo && hostInfo.data)}
 
-                            <h4>Host info <JsonDetail title="Host info" code={JSON.stringify(hostInfo && hostInfo.data)} /></h4>
-                            {this.renderHostInfo(hostInfo && hostInfo.data)}
-
+                        {! this.state.details ? <div>
+                            <h4>Databases <JsonDetail title="Databases" code={JSON.stringify(init && init.listDBs.databases)} /></h4>
+                            <p>{init && init.listDBs.databases ? init.listDBs.databases.map((db) => db.name).join(', ') : null}</p>
+                        </div> : <div>
                             <h4>Build info <JsonDetail title="Build info" code={JSON.stringify(buildInfo && buildInfo.data)} /></h4>
                             {this.renderBuildInfo(buildInfo && buildInfo.data)}
 
@@ -78,13 +92,6 @@ export default class ServerDetail extends React.Component {
 
                             <h4>Logs</h4>
                             {this.renderLogMessages(log && log.data)}
-                        </div> : <div className="panel-body">
-
-                            <h4>Host info <JsonDetail title="Host info" code={JSON.stringify(hostInfo && hostInfo.data)} /></h4>
-                            {this.renderHostInfo(hostInfo && hostInfo.data)}
-
-                            <h4>Databases <JsonDetail title="Databases" code={JSON.stringify(init && init.listDBs.databases)} /></h4>
-                            <p>{init && init.listDBs.databases ? init.listDBs.databases.map((db) => db.name).join(', ') : null}</p>
                         </div>}
                     </div>
                 </div>

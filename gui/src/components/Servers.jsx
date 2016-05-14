@@ -8,7 +8,7 @@ export default class Servers extends React.Component {
     };
 
     render() {
-        const {data, data: {dbStats, serverStatus, hostInfo, buildInfo, init, log}, details} = this.props;
+        const {data, data: {dbStats, serverStatus, hostInfo, buildInfo, init, log}} = this.props;
 
         return (
             <div className="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
@@ -27,7 +27,6 @@ export default class Servers extends React.Component {
                             buildInfo={buildInfo[server.hostId]}
                             log={log[server.hostId]}
                             index={serverIndex}
-                            details={details}
                         />
                     )
                 })}

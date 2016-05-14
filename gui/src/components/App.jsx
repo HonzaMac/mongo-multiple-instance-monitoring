@@ -37,7 +37,6 @@ export default class App extends React.Component {
                 buildInfo: {},
                 log: {}
             },
-            detailedView: true,
             connected: false
         };
     }
@@ -54,8 +53,7 @@ export default class App extends React.Component {
             <div className="container">
                 {this.state.error ? <div className="alert alert-danger" role="alert"><p>{this.state.error}</p></div> : null}
                 {this.renderControlButtons()}
-                {this.renderViewControlButtons()}
-                <Servers data={this.state.data} details={this.state.detailedView} />
+                <Servers data={this.state.data} />
             </div>
         )
     }
@@ -79,16 +77,6 @@ export default class App extends React.Component {
                 </div>
             )
         }
-    }
-
-    renderViewControlButtons() {
-        return (
-            <div className="row">
-                <p>
-                    <button onClick={() => this.setState({detailedView: ! this.state.detailedView})} className="btn btn-default">{this.state.detailedView ? 'Without details' : 'With details'}</button>
-                </p>
-            </div>
-        )
     }
 
     
