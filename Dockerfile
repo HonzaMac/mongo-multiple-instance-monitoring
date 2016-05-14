@@ -19,5 +19,5 @@ RUN  php -r "readfile('https://getcomposer.org/installer');" | php -- --install-
 
 
 WORKDIR /srv/src
-EXPOSE 9000
+EXPOSE 9900
 ENTRYPOINT php run.php
