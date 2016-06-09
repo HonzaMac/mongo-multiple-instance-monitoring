@@ -140,20 +140,21 @@ class MongoApplication implements Application
         $reply = (yield Awaitable\adapt($connection->send($listDatabasesQuery)));
         $listDbs = current(iterator_to_array($reply));
         $initResponse = Messages\Init::create($instanceIp, $instanceIp, $listDbs);
-        $this->log($websocketConnection, $instanceIp, 'getting list of databases');
+        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting list of databases');
         yield $websocketConnection->send($initResponse);
 
         yield $listDbs;
     }
 
     /**
-     * @param Connection $websocketConnection
-     * @param $instanceIp
-     * @param $message
+     * @param string $remoteAddress
+     * @param int $remotePort
+     * @param string $instanceIp
+     * @param string $message
      */
-    private function log(Connection $websocketConnection, $instanceIp, $message)
+    private function log($remoteAddress, $remotePort, $instanceIp, $message)
     {
-        $clientPrefix = $websocketConnection->getRemoteAddress() . ':' . $websocketConnection->getRemotePort();
+        $clientPrefix = $remoteAddress . ':' . $remotePort;
         echo $clientPrefix . ' => ' . $instanceIp . ': ' . $message . PHP_EOL;
     }
 
@@ -169,7 +170,7 @@ class MongoApplication implements Application
         $reply = (yield Awaitable\adapt($connection->send($query)));
         /** @var Reply $reply */
         $response = current(iterator_to_array($reply));
-        $this->log($websocketConnection, $instanceIp, 'getting build-info');
+        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting build-info');
         yield $websocketConnection->send(Messages\BuildInfo::create($instanceIp, $response));
     }
 
@@ -185,7 +186,7 @@ class MongoApplication implements Application
         $hostInfoReply = (yield Awaitable\adapt($connection->send($hostInfoQuery)));
         /** @var Reply $hostInfoReply */
         $hostInfo = current(iterator_to_array($hostInfoReply));
-        $this->log($websocketConnection, $instanceIp, 'getting host info');
+        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting host info');
         yield $websocketConnection->send(Messages\HostInfo::create($instanceIp, $hostInfo));
     }
 
@@ -207,7 +208,7 @@ class MongoApplication implements Application
         $sum = md5(serialize($response));
         if ($sum !== @$cache[$cacheKey]) {
             $cache[$cacheKey] = $sum;
-            $this->log($websocketConnection, $instanceIp, 'getting server stats');
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting server stats');
             yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $response));
         }
     }
@@ -224,7 +225,7 @@ class MongoApplication implements Application
         $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
         /** @var Reply $topReply */
         $top = current(iterator_to_array($topReply));
-        $this->log($websocketConnection, $instanceIp, 'getting top');
+        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting top');
         yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
     }
 
@@ -262,7 +263,7 @@ class MongoApplication implements Application
         $sum = md5(serialize($dbStats));
         if ($sum !== @$cache[$cacheKey]) {
             $cache[$cacheKey] = $sum;
-            $this->log($websocketConnection, $instanceIp, 'sending database stats for [' . $dbName . ']');
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'sending database stats for [' . $dbName . ']');
             yield $websocketConnection->send(Messages\DbStats::create($instanceIp, $dbStats));
         }
     }
@@ -286,7 +287,7 @@ class MongoApplication implements Application
         if ($sum !== @$cache[$cacheKey]) {
             $cache[$cacheKey] = $sum;
 
-            $this->log($websocketConnection, $instanceIp, 'getting log');
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting log');
             yield $websocketConnection->send(Messages\Log::create($instanceIp, $response));
         }
     }
