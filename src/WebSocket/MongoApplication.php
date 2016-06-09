@@ -63,21 +63,33 @@ class MongoApplication implements Application
      */
     public function onConnection(Connection $websocketConnection, Response $response, Request $request)
     {
-        $connectedInstances = [];
         $cache = [];
+        $coroutines = [];
         foreach ($this->ipList as $instanceIp) {
-            $generator = $this->fetch($websocketConnection, $instanceIp, $cache);
-            list($connection, $databases) = (yield $generator);
-            if (null !== $connection) {
-                /** @var MongoConnection $connection */
-                $connectedInstances[] = [$connection, $instanceIp, $databases];
-            }
+            $coroutines[] = new Coroutine\Coroutine($this->fetch($instanceIp, $cache));
         }
+        $connectedInstances = (yield Awaitable\all($coroutines));
+        $connectedInstances = array_filter($connectedInstances);
+
+        foreach ($connectedInstances as list($connection, $instanceIp, $databases, $buildInfo, $hostInfo, $serverStatus, $top)) {
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting list of databases');
+            yield $websocketConnection->send(Messages\Init::create($instanceIp, $instanceIp, $databases));
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting build-info');
+            yield $websocketConnection->send(Messages\BuildInfo::create($instanceIp, $buildInfo));
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting host info');
+            yield $websocketConnection->send(Messages\HostInfo::create($instanceIp, $hostInfo));
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting server stats');
+            yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $serverStatus));
+            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting top');
+            yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
+        }
+
+
         while ($websocketConnection->isOpen()) {
             foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
                 yield $this->databasesCoroutines($websocketConnection, $databases, $instanceIp, $connection, $cache);
                 yield (new Coroutine\Coroutine($this->fetchLog($websocketConnection, $instanceIp, $connection, $cache)))->wait();
-                yield (new Coroutine\Coroutine($this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache)))->wait();
+                yield (new Coroutine\Coroutine($this->fetchServerStatus($instanceIp, $connection, $cache)))->wait();
             }
             yield Coroutine\sleep(self::PERIODIC_CHECK_IN_SECONDS);
 
@@ -90,27 +102,24 @@ class MongoApplication implements Application
 
 
     /**
-     * @param Connection $websocketConnection
      * @param string $instanceIp
      * @param $cache
      * @return Generator
      */
-    public function fetch(Connection $websocketConnection, $instanceIp, &$cache)
+    public function fetch($instanceIp, &$cache)
     {
         list($host, $port) = explode(':', $instanceIp);
         $connection = (yield $this->connectToHost($instanceIp, $host, $port));
         if ($connection) {
-            $listDbs = (yield $this->fetchListDatabase($websocketConnection, $instanceIp, $connection));
+            $listDbs = (yield $this->fetchListDatabase($connection));
+            $buildInfo = (yield $this->fetchBuildInfo($connection));
+            $hostInfo = (yield $this->fetchHostInfo($connection));
+            $serverStatus = (yield $this->fetchServerStatus($instanceIp, $connection, $cache));
+            $top = (yield $this->fetchTop($connection));
 
-            yield $this->fetchBuildInfo($websocketConnection, $instanceIp, $connection);
-            yield $this->fetchHostInfo($websocketConnection, $instanceIp, $connection);
-            yield $this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache);
-            yield $this->fetchTop($websocketConnection, $instanceIp, $connection);
-
-            $databases = $listDbs['databases'];
-            yield [$connection, $databases];
+            yield [$connection, $instanceIp, $listDbs, $buildInfo, $hostInfo, $serverStatus, $top];
         } else {
-            yield;
+            yield null;
         }
     }
 
@@ -141,22 +150,76 @@ class MongoApplication implements Application
     }
 
     /**
-     * @param Connection $websocketConnection
-     * @param string $instanceIp
      * @param MongoConnection $connection
-     * @return Generator|mixed
+     * @return array
      */
-    private function fetchListDatabase(Connection $websocketConnection, $instanceIp, $connection)
+    private function fetchListDatabase($connection)
     {
         $listDatabasesQuery = new Query('admin.$cmd', ['listDatabases' => 1], null, 0, 1);
         /** @var Reply $reply */
         $reply = (yield Awaitable\adapt($connection->send($listDatabasesQuery)));
         $listDbs = current(iterator_to_array($reply));
-        $initResponse = Messages\Init::create($instanceIp, $instanceIp, $listDbs);
-        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting list of databases');
-        yield $websocketConnection->send($initResponse);
-
         yield $listDbs;
+    }
+
+    /**
+     * @param MongoConnection $connection
+     * @return Generator
+     */
+    private function fetchBuildInfo($connection)
+    {
+        $query = new Query('admin.$cmd', ['buildInfo' => 1], null, 0, 1);
+        $reply = (yield Awaitable\adapt($connection->send($query)));
+        /** @var Reply $reply */
+        $buildInfo = current(iterator_to_array($reply));
+        yield $buildInfo;
+    }
+
+    /**
+     * @param MongoConnection $connection
+     * @return Generator
+     */
+    private function fetchHostInfo($connection)
+    {
+        $hostInfoQuery = new Query('admin.$cmd', ['hostInfo' => 1], null, 0, 1);
+        $hostInfoReply = (yield Awaitable\adapt($connection->send($hostInfoQuery)));
+        /** @var Reply $hostInfoReply */
+        $hostInfo = current(iterator_to_array($hostInfoReply));
+        yield $hostInfo;
+    }
+
+    /**
+     * @param string $instanceIp
+     * @param MongoConnection $connection
+     * @param array $cache
+     * @return Generator
+     */
+    private function fetchServerStatus($instanceIp, $connection, &$cache)
+    {
+        $cacheKey = $instanceIp;
+
+        $serverStatusQuery = new Query('admin.$cmd', ['serverStatus' => 1], null, 0, 1);
+        $serverStatusReply = (yield Awaitable\adapt($connection->send($serverStatusQuery)));
+        /** @var Reply $serverStatusReply */
+        $serverStatusResponse = current(iterator_to_array($serverStatusReply));
+        $sum = md5(serialize($serverStatusResponse));
+        if ($sum !== @$cache[$cacheKey]) {
+            $cache[$cacheKey] = $sum;
+            yield $serverStatusResponse;
+        }
+    }
+
+    /**
+     * @param MongoConnection $connection
+     * @return Generator
+     */
+    private function fetchTop($connection)
+    {
+        $topQuery = new Query('admin.$cmd', ['top' => 1], null, 0, 1);
+        $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
+        /** @var Reply $topReply */
+        $top = current(iterator_to_array($topReply));
+        yield $top;
     }
 
     /**
@@ -173,77 +236,6 @@ class MongoApplication implements Application
 
     /**
      * @param Connection $websocketConnection
-     * @param string $instanceIp
-     * @param MongoConnection $connection
-     * @return Generator
-     */
-    private function fetchBuildInfo(Connection $websocketConnection, $instanceIp, $connection)
-    {
-        $query = new Query('admin.$cmd', ['buildInfo' => 1], null, 0, 1);
-        $reply = (yield Awaitable\adapt($connection->send($query)));
-        /** @var Reply $reply */
-        $response = current(iterator_to_array($reply));
-        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting build-info');
-        yield $websocketConnection->send(Messages\BuildInfo::create($instanceIp, $response));
-    }
-
-    /**
-     * @param Connection $websocketConnection
-     * @param string $instanceIp
-     * @param MongoConnection $connection
-     * @return Generator
-     */
-    private function fetchHostInfo(Connection $websocketConnection, $instanceIp, $connection)
-    {
-        $hostInfoQuery = new Query('admin.$cmd', ['hostInfo' => 1], null, 0, 1);
-        $hostInfoReply = (yield Awaitable\adapt($connection->send($hostInfoQuery)));
-        /** @var Reply $hostInfoReply */
-        $hostInfo = current(iterator_to_array($hostInfoReply));
-        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting host info');
-        yield $websocketConnection->send(Messages\HostInfo::create($instanceIp, $hostInfo));
-    }
-
-    /**
-     * @param Connection $websocketConnection
-     * @param string $instanceIp
-     * @param MongoConnection $connection
-     * @param array $cache
-     * @return Generator
-     */
-    private function fetchServerStatus(Connection $websocketConnection, $instanceIp, $connection, &$cache)
-    {
-        $cacheKey = $instanceIp;
-
-        $serverStatusQuery = new Query('admin.$cmd', ['serverStatus' => 1], null, 0, 1);
-        $serverStatusReply = (yield Awaitable\adapt($connection->send($serverStatusQuery)));
-        /** @var Reply $serverStatusReply */
-        $response = current(iterator_to_array($serverStatusReply));
-        $sum = md5(serialize($response));
-        if ($sum !== @$cache[$cacheKey]) {
-            $cache[$cacheKey] = $sum;
-            $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting server stats');
-            yield $websocketConnection->send(Messages\ServerStatus::create($instanceIp, $response));
-        }
-    }
-
-    /**
-     * @param Connection $websocketConnection
-     * @param string $instanceIp
-     * @param MongoConnection $connection
-     * @return Generator
-     */
-    private function fetchTop(Connection $websocketConnection, $instanceIp, $connection)
-    {
-        $topQuery = new Query('admin.$cmd', ['top' => 1], null, 0, 1);
-        $topReply = (yield Awaitable\adapt($connection->send($topQuery)));
-        /** @var Reply $topReply */
-        $top = current(iterator_to_array($topReply));
-        $this->log($websocketConnection->getRemoteAddress(), $websocketConnection->getRemotePort(), $instanceIp, 'getting top');
-        yield $websocketConnection->send(Messages\Top::create($instanceIp, $top));
-    }
-
-    /**
-     * @param Connection $websocketConnection
      * @param array $databases
      * @param string $instanceIp
      * @param MongoConnection $connection
@@ -252,7 +244,7 @@ class MongoApplication implements Application
      */
     private function databasesCoroutines(Connection $websocketConnection, $databases, $instanceIp, $connection, &$cache)
     {
-        foreach ($databases as $db) {
+        foreach ($databases['databases'] as $db) {
             yield (new Coroutine\Coroutine($this->fetchDbStatus($websocketConnection, $instanceIp, $db['name'], $connection, $cache)));
         }
     }
