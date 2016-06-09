@@ -3,6 +3,7 @@
 
 namespace MongoMonitoring\WebSocket;
 
+use Exception;
 use Generator;
 use Icicle\Awaitable;
 use Icicle\Coroutine;
@@ -67,8 +68,10 @@ class MongoApplication implements Application
         foreach ($this->ipList as $instanceIp) {
             $generator = $this->fetch($websocketConnection, $instanceIp, $cache);
             list($connection, $databases) = (yield $generator);
-            /** @var MongoConnection $connection */
-            $connectedInstances[] = [$connection, $instanceIp, $databases];
+            if (null !== $connection) {
+                /** @var MongoConnection $connection */
+                $connectedInstances[] = [$connection, $instanceIp, $databases];
+            }
         }
         while ($websocketConnection->isOpen()) {
             foreach ($connectedInstances as list($connection, $instanceIp, $databases)) {
@@ -96,15 +99,19 @@ class MongoApplication implements Application
     {
         list($host, $port) = explode(':', $instanceIp);
         $connection = (yield $this->connectToHost($instanceIp, $host, $port));
-        $listDbs = (yield $this->fetchListDatabase($websocketConnection, $instanceIp, $connection));
+        if ($connection) {
+            $listDbs = (yield $this->fetchListDatabase($websocketConnection, $instanceIp, $connection));
 
-        yield $this->fetchBuildInfo($websocketConnection, $instanceIp, $connection);
-        yield $this->fetchHostInfo($websocketConnection, $instanceIp, $connection);
-        yield $this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache);
-        yield $this->fetchTop($websocketConnection, $instanceIp, $connection);
+            yield $this->fetchBuildInfo($websocketConnection, $instanceIp, $connection);
+            yield $this->fetchHostInfo($websocketConnection, $instanceIp, $connection);
+            yield $this->fetchServerStatus($websocketConnection, $instanceIp, $connection, $cache);
+            yield $this->fetchTop($websocketConnection, $instanceIp, $connection);
 
-        $databases = $listDbs['databases'];
-        yield [$connection, $databases];
+            $databases = $listDbs['databases'];
+            yield [$connection, $databases];
+        } else {
+            yield;
+        }
     }
 
     /**
@@ -116,15 +123,21 @@ class MongoApplication implements Application
     private function connectToHost($instanceIp, $host, $port)
     {
         /** @var MongoConnection $connection */
-        $connectionThenable = Awaitable\adapt($this->connectionFactory->create($host, $port, ['connectTimeoutMS' => 500, 'socketTimeoutMS' => 500]));
-        $connectionThenable->timeout(self::SERVER_CONNECTION_TIMEOUT_IN_SECONDS, function() use ($connectionThenable, $instanceIp) {
+        $lastAwaitable = $connectionThenable = Awaitable\adapt($this->connectionFactory->create($host, $port, ['connectTimeoutMS' => 500, 'socketTimeoutMS' => 500]));
+        $lastAwaitable = $lastAwaitable->timeout(self::SERVER_CONNECTION_TIMEOUT_IN_SECONDS, function () use ($connectionThenable, $instanceIp) {
+            echo $instanceIp . ' timed out after ' . self::SERVER_CONNECTION_TIMEOUT_IN_SECONDS . ' seconds' . PHP_EOL;
             $connectionThenable->cancel();
+            return null;
         });
-        $connectionThenable->then(function() use ($instanceIp) {
+        $lastAwaitable = $lastAwaitable->then(function () use ($instanceIp, $connectionThenable) {
             echo $instanceIp . ' connected' . PHP_EOL;
+            return $connectionThenable;
+        }, function (Exception $exception) use ($instanceIp) {
+            echo $instanceIp . ' failed to connect with reason: ' . $exception->getMessage() . PHP_EOL;
+            return null;
         });
 
-        return $connectionThenable;
+        yield $lastAwaitable;
     }
 
     /**
