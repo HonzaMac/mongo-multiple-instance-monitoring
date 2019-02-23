@@ -20,14 +20,14 @@
   "dependencies": {
     "classname": "0.0.0",
     "humanize": "0.0.9",
-    "react": "^15.0.2",
-    "react-dom": "^15.0.2"
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3"
   },
   "devDependencies": {
     "babel-core": "^6.3.21",
-    "babel-eslint": "^5.0.0-beta6",
-    "babel-loader": "^6.2.0",
-    "babel-plugin-react-transform": "^2.0.0-beta1",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.5",
+    "babel-plugin-react-transform": "^3.0.0",
     "babel-plugin-transform-builtin-extend": "^1.1.0",
     "babel-plugin-transform-runtime": "^6.3.13",
     "babel-polyfill": "^6.7.4",
@@ -35,12 +35,12 @@
     "babel-preset-react": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
     "babel-runtime": "^6.3.19",
-    "css-loader": "^0.23.1",
-    "node-sass": "^3.4.2",
+    "css-loader": "^2.1.0",
+    "node-sass": "^4.11.0",
     "react-transform-hmr": "^1.0.1",
-    "sass-loader": "^3.2.0",
-    "style-loader": "^0.13.1",
-    "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.8.0"
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.29.5",
+    "webpack-dev-server": "^3.2.0"
   }
 }
