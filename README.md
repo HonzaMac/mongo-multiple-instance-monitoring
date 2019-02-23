@@ -1,5 +1,7 @@
 # Multiple Mongo Instance Monitoring tool
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/HonzaMac/mongo-multiple-instance-monitoring.svg)](https://greenkeeper.io/)
+
 Tool for live monitoring of multiple mongodb instances
 
 ## Monitoring tool
